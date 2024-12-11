@@ -22,11 +22,14 @@ public class ReadJsonTest {
 		// 案由
 		String charge = data.getTitle();
 		// 刑法
-		String pattern = "刑法第.*條(第.*項)?";
+		String pattern1 = "刑法第.*條(第.*項)?";
 		// 刑事訴訟法
 		String pattern2 = "刑事訴訟法第.*條(第.*項)?";
-		Pattern lowPattern = Pattern.compile(pattern2);
-		Matcher matcher = lowPattern.matcher(data.getFull());
+		// 整理文章中多餘空格跟跳脫符號
+		String toClearPattern = "";
+		StringBuffer text = new StringBuffer(data.getFull());
+		Pattern lowPattern = Pattern.compile(pattern1);
+		Matcher matcher = lowPattern.matcher(null);
 		ArrayList<String> lowList = new ArrayList<>();
 		int index = 0;
 		while(matcher.find(index)) {
