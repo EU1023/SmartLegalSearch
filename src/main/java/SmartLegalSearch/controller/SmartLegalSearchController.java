@@ -19,9 +19,17 @@ public class SmartLegalSearchController {
 		return "{\"message\": \"Hello from Java\"}";
 	}
 
-	@PostMapping("data")
-	public ResponseEntity<String> postData(@RequestBody Map<String, Object> data) {
-		System.out.println("Received data: " + data);
-		return ResponseEntity.ok("Data received successfully");
-	}
+	@PostMapping("/upload")
+    public ResponseEntity<String> uploadJson(@RequestBody Map<String, Object> jsonData) {
+        // 輸出接收到的 JSON 資料
+        System.out.println("接收到的 JSON 資料：" + jsonData);
+
+        // 範例：提取某些欄位進行處理
+        String jid = (String) jsonData.get("JID");
+        String title = (String) jsonData.get("JTITLE");
+        System.out.println("案件 ID: " + jid + ", 標題: " + title);
+
+        // 回應成功訊息
+        return ResponseEntity.ok("JSON 資料接收成功！");
+    }
 }
