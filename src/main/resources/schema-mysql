@@ -1,0 +1,63 @@
+CREATE TABLE if not exists `criminal_case` (
+  `criminal_id` int NOT NULL,
+  `criminal_start_year` int DEFAULT NULL,
+  `criminal_end_year` int DEFAULT NULL,
+  `criminal_judgment_date` date DEFAULT NULL,
+  `criminal_law` varchar(500) DEFAULT NULL,
+  `criminal_court` varchar(30) DEFAULT NULL,
+  `criminal_facts` varchar(5000) DEFAULT NULL,
+  `criminal_motive` varchar(5000) DEFAULT NULL,
+  `criminal_charge` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`criminal_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE if not exists `criminal_case_defendants` (
+  `criminal_id` int NOT NULL,
+  `defendant_id` int NOT NULL,
+  `defendant_role` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`criminal_id`,`defendant_id`),
+  KEY `defendant_id` (`defendant_id`),
+  CONSTRAINT `criminal_case_defendants_ibfk_1` FOREIGN KEY (`criminal_id`) REFERENCES `criminal_case` (`criminal_id`),
+  CONSTRAINT `criminal_case_defendants_ibfk_2` FOREIGN KEY (`defendant_id`) REFERENCES `criminal_related_parties` (`party_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE  TABLE   if not exists `criminal_case_investigating_agencies` (
+  `criminal_id` int NOT NULL,
+  `agency_id` int NOT NULL,
+  `agency_role` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`criminal_id`,`agency_id`),
+  KEY `agency_id` (`agency_id`),
+  CONSTRAINT `criminal_case_investigating_agencies_ibfk_1` FOREIGN KEY (`criminal_id`) REFERENCES `criminal_case` (`criminal_id`),
+  CONSTRAINT `criminal_case_investigating_agencies_ibfk_2` FOREIGN KEY (`agency_id`) REFERENCES `criminal_related_parties` (`party_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE  TABLE  if not exists `criminal_case_judges` (
+  `criminal_id` int NOT NULL,
+  `judge_id` int NOT NULL,
+  `judge_role` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`criminal_id`,`judge_id`),
+  KEY `judge_id` (`judge_id`),
+  CONSTRAINT `criminal_case_judges_ibfk_1` FOREIGN KEY (`criminal_id`) REFERENCES `criminal_case` (`criminal_id`),
+  CONSTRAINT `criminal_case_judges_ibfk_2` FOREIGN KEY (`judge_id`) REFERENCES `criminal_related_parties` (`party_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE  if not exists `criminal_case_lawyers` (
+  `criminal_id` int NOT NULL,
+  `lawyer_id` int NOT NULL,
+  `lawyer_role` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`criminal_id`,`lawyer_id`),
+  KEY `lawyer_id` (`lawyer_id`),
+  CONSTRAINT `criminal_case_lawyers_ibfk_1` FOREIGN KEY (`criminal_id`) REFERENCES `criminal_case` (`criminal_id`),
+  CONSTRAINT `criminal_case_lawyers_ibfk_2` FOREIGN KEY (`lawyer_id`) REFERENCES `criminal_related_parties` (`party_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE  if not exists `criminal_related_parties` (
+  `party_id` int NOT NULL AUTO_INCREMENT,
+  `party_name` varchar(255) DEFAULT NULL,
+  `party_role` varchar(50) DEFAULT NULL,
+  `party_type` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`party_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
