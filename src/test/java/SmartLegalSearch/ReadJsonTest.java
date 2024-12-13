@@ -1,6 +1,7 @@
 package SmartLegalSearch;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -18,9 +19,8 @@ public class ReadJsonTest {
 	private ReadJson readJson = new ReadJson();
 
 	// 檔案路徑
-	private ReadJsonVo data = readJson
-			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,111,金訴,198,20240513,7.json");
-	
+	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,111,金訴,198,20240513,7.json");
+
 	// 取得判決主文
 //	private String text = new String(data.getFull());
 
@@ -91,96 +91,46 @@ public class ReadJsonTest {
 	public void date() {
 		// 判決日
 		String pattern = "中華民國([一二三四五六七八九十]|\\d){1,3}年" + "([一二三四五六七八九十]|\\d){1,2}月([一二三四五六七八九十]|\\d){1,3}日";
-		ArrayList<String> dataStrList = readJsonTest(pattern);
+		ArrayList<String> dateStrList = readJsonTest(pattern);
 
 		// 取出第一個後去除 中華民國 後分割出阿拉伯數字
-		String[] dataStr = dataStrList.get(0).replaceAll("中華民國", "").split("年|月|日");
-		// 初始值
-		LocalDate date = null;
-		int year = 0;
-		int mon = 0;
-		int day = 0;
-		// 判定 日期是繁體中文時
-		boolean isChinese = false;
-		if (number.containsKey(dataStr[0].split("")[0])) {
-			isChinese = true;
+		String[] dateStr = dateStrList.get(0).replaceAll("中華民國", "").split("年|月|日");
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		int year = (Integer.parseInt(dateStr[0]) + 1911);
+		if (dateStr[1].length() == 1) {
+			dateStr[1] = "0" + dateStr[1];
 		}
-		for (int i = 0; i < dataStr.length; i++) {
-			if (i == 0) {
-				if (isChinese) {
-					String[] CyearList = dataStr[i].split("");
-					for (int j = 0; j < CyearList.length; j++) {
-						if (!CyearList[j].equalsIgnoreCase("十")) {
-							year += number.get(CyearList[j]);
-						} else {
-							year *= number.get(CyearList[j]);
-						}
-					}
-					year += 1991;
-					continue;
-				}
-				year = Integer.parseInt(dataStr[i]) + 1911;
-				continue;
-			}
-			if (i == 1) {
-				if (isChinese) {
-					String[] CyearList = dataStr[i].split("");
-					for (int j = 0; j < CyearList.length; j++) {
-							mon += number.get(CyearList[j]);
-					}
-					continue;
-				}
-				mon = Integer.parseInt(dataStr[i]);
-				continue;
-			}
-			if (i == 2) {
-				if (isChinese) {
-					String[] CyearList = dataStr[i].split("");
-					for (int j = 0; j < CyearList.length; j++) {
-						if (!CyearList[j].equalsIgnoreCase("十")) {
-							day += number.get(CyearList[j]);
-						} else {
-							if(day == 0) {
-								day = 1;
-							}
-							day *= number.get(CyearList[j]);
-						}
-					}
-					continue;
-				}
-				day = Integer.parseInt(dataStr[i]);
-			}
-			date = LocalDate.of(year, mon, day);
+		if (dateStr[2].length() == 1) {
+			dateStr[2] = "0" + dateStr[2];
 		}
+		String dateChar = year + "-" + dateStr[1] + "-" + dateStr[2];
+		LocalDate date = LocalDate.parse(dateChar, formatter);
 		System.out.println(date);
+
 	}
 
 	@Test
 	public void httpTest() {
-	    // 假設 data.getId() 返回的 id 字串
-	    String id = data.getId(); 
-	    System.out.println("原始 ID: " + id);
-	    
-	    // 使用生成網址的方法來創建網址
-	    String url = generateUrl(id);
-	    
-	    // 直接印出生成的網址
-	    System.out.println(url);
+		// 假設 data.getId() 返回的 id 字串
+		String id = data.getId();
+		System.out.println("原始 ID: " + id);
+
+		// 使用生成網址的方法來創建網址
+		String url = generateUrl(id);
+
+		// 直接印出生成的網址
+		System.out.println(url);
 	}
 
 	// 生成網址的方法
 	public String generateUrl(String id) {
-	    // 替換逗號為 URL 兼容格式
-	    String encodedId = id.replace(",", "%2c"); // 處理逗號
-	    //encodedId = encodedId.replace("金訴", "%e9%87%91%e8%a8%b4"); // 處理中文（可以根據需求擴展編碼規則）
+		// 替換逗號為 URL 兼容格式
+		String encodedId = id.replace(",", "%2c"); // 處理逗號
+		// encodedId = encodedId.replace("金訴", "%e9%87%91%e8%a8%b4"); //
+		// 處理中文（可以根據需求擴展編碼規則）
 
-	    // 返回組合好的網址
-	    return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
+		// 返回組合好的網址
+		return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
 	}
 
-	
-
-	
-	
-	
 }
