@@ -1,15 +1,25 @@
 package SmartLegalSearch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.FileReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
+import com.mysql.cj.xdevapi.Statement;
+
 import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.vo.ReadJsonVo;
+import net.bytebuddy.description.method.MethodDescription.TypeToken;
 
 //@SpringBootTest
 public class ReadJsonTest {
@@ -19,7 +29,7 @@ public class ReadJsonTest {
 
 	// 檔案路徑
 	private ReadJsonVo data = readJson
-			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,111,金訴,198,20240513,7.json");
+			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,109,金訴,154,20240503,5.json");
 	
 	// 取得判決主文
 //	private String text = new String(data.getFull());
@@ -179,8 +189,9 @@ public class ReadJsonTest {
 	}
 
 	
+	
+	 
+	}
+	
+	
 
-	
-	
-	
-}
