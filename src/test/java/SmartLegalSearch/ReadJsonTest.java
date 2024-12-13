@@ -19,8 +19,8 @@ public class ReadJsonTest {
 
 	// 檔案路徑
 	private ReadJsonVo data = readJson
-			.readJson("C:\\Users\\user\\Desktop\\202405\\臺灣屏東地方法院刑事\\PTDM,112,金訴,170,20240501,1.json");
-
+			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,111,金訴,198,20240513,7.json");
+	
 	// 取得判決主文
 //	private String text = new String(data.getFull());
 
@@ -155,4 +155,32 @@ public class ReadJsonTest {
 		System.out.println(date);
 	}
 
+	@Test
+	public void httpTest() {
+	    // 假設 data.getId() 返回的 id 字串
+	    String id = data.getId(); 
+	    System.out.println("原始 ID: " + id);
+	    
+	    // 使用生成網址的方法來創建網址
+	    String url = generateUrl(id);
+	    
+	    // 直接印出生成的網址
+	    System.out.println(url);
+	}
+
+	// 生成網址的方法
+	public String generateUrl(String id) {
+	    // 替換逗號為 URL 兼容格式
+	    String encodedId = id.replace(",", "%2c"); // 處理逗號
+	    //encodedId = encodedId.replace("金訴", "%e9%87%91%e8%a8%b4"); // 處理中文（可以根據需求擴展編碼規則）
+
+	    // 返回組合好的網址
+	    return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
+	}
+
+	
+
+	
+	
+	
 }
