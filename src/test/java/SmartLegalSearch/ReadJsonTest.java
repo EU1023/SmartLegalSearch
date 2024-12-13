@@ -25,7 +25,7 @@ public class ReadJsonTest {
 //	private String text = new String(data.getFull());
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
-	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", "");
+	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", " ");
 
 	// 中文數字轉換阿拉伯數字用工具 Map
 	private Map<String, Integer> number = Map.of("一", 1, "二", 2, "三", 3, "四", 4, "五", 5, "六", 6, "七", 7, "八", 8, "九", 9,
@@ -86,7 +86,7 @@ public class ReadJsonTest {
 		readJsonTest(pattern);
 	}
 
-	// 判決日期(支援繁體中文數字跟阿拉伯數字)
+	// 判決日期(阿拉伯數字)
 	@Test
 	public void date() {
 		// 判決日
