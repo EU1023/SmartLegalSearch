@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 
+import JudgmentService.HttpSend;
 import JudgmentService.Judgment;
 import JudgmentService.JudgmentService;
 
@@ -44,3 +45,10 @@ public class SmartLegalSearchApplication {
         }
     }
 }
+	
+//	
+//	    public static void main(String[] args) {
+//	        // 啟動處理流程
+//	        HttpSend.processJudgments();
+//	    }
+//	}
