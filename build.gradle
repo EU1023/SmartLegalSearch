@@ -28,8 +28,9 @@ dependencies {
 	implementation 'com.mysql:mysql-connector-j'
 	// ¸ê®ÆÅçÃÒ
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// JSONObject
-	implementation 'org.json:json:20210307'
+	// Åª JSON ÀÉ
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+	
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

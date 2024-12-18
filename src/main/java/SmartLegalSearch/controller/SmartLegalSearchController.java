@@ -19,13 +19,7 @@ public class SmartLegalSearchController {
 		return "{\"message\": \"Hello from Java\"}";
 	}
 
-	@PostMapping("data")
-	public ResponseEntity<String> postData(@RequestBody Map<String, Object> data) {
-		System.out.println("Received data: " + data);
-		return ResponseEntity.ok("Data received successfully");
-	}
-	
-	@PostMapping("upload")
+	@PostMapping("/upload")
     public ResponseEntity<String> uploadJson(@RequestBody Map<String, Object> jsonData) {
         // 輸出接收到的 JSON 資料
         System.out.println("接收到的 JSON 資料：" + jsonData);
