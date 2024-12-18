@@ -3,6 +3,8 @@ package SmartLegalSearch;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,7 +21,7 @@ public class ReadJsonTest {
 	private ReadJson readJson = new ReadJson();
 
 	// 檔案路徑
-	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,111,金訴,198,20240513,7.json");
+	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\KSDM,86,訴,3155,20000828.json");
 
 	// 取得判決主文
 //	private String text = new String(data.getFull());
@@ -131,6 +133,46 @@ public class ReadJsonTest {
 
 		// 返回組合好的網址
 		return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
+	}
+	//
+	@Test 
+	public void legalEntityExtractor() {
+		// 示例文本
+        String text = "張三違反《刑法》第22條，判處有期徒刑三年";
+
+        // 正規表達式模式
+        Map<String, String> patterns = new HashMap<>();
+        patterns.put("DEFENDANT", "[\u4e00-\u9fa5]{2,4}");  // 2到4個漢字的人名
+        patterns.put("LAW", "《[\u4e00-\u9fa5]+》");         // 法律名稱，如《刑法》
+        patterns.put("ARTICLE", "第\\d+條");                // 法律條文，如第22條
+        patterns.put("SENTENCE", "判處[\u4e00-\u9fa5]+");    // 判刑內容，如判處有期徒刑
+        patterns.put("TIME", "(\\d+年|\\d+月|\\d+日|\\d+天)"); // 判刑時間，如三年，五年
+        patterns.put("VIOLATION", "違反[\u4e00-\u9fa5]+");   // 違法內容，如違背法律
+
+        // 用來存儲匹配結果
+        Map<String, List<String>> entities = new HashMap<>();
+
+        // 提取文本中的每個實體
+        for (Map.Entry<String, String> entry : patterns.entrySet()) {
+            String label = entry.getKey();
+            String pattern = entry.getValue();
+            List<String> matches = new ArrayList<>();
+
+            // 使用正則表達式查找匹配
+            Pattern regex = Pattern.compile(pattern);
+            Matcher matcher = regex.matcher(text);
+
+            while (matcher.find()) {
+                matches.add(matcher.group());
+            }
+
+            entities.put(label, matches);
+        }
+
+        // 打印提取結果
+        for (Map.Entry<String, List<String>> entry : entities.entrySet()) {
+            System.out.println(entry.getKey() + ": " + entry.getValue());
+        }
 	}
 
 }
