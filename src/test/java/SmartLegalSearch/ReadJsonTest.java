@@ -19,13 +19,13 @@ public class ReadJsonTest {
 	private ReadJson readJson = new ReadJson();
 
 	// 檔案路徑
-	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,111,金訴,198,20240513,7.json");
+	private ReadJsonVo data = readJson.readJson("C:\\Users\\user\\Desktop\\臺灣基隆地方法院刑事\\KLDM,109,金訴,154,20240503,5.json");
 
 	// 取得判決主文
 //	private String text = new String(data.getFull());
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
-	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", " ");
+	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", "");
 
 	// 中文數字轉換阿拉伯數字用工具 Map
 	private Map<String, Integer> number = Map.of("一", 1, "二", 2, "三", 3, "四", 4, "五", 5, "六", 6, "七", 7, "八", 8, "九", 9,
@@ -57,7 +57,7 @@ public class ReadJsonTest {
 	// 法院代號、案由
 	@Test
 	public void courtIdAndchargeTest() {
-		// 法院代號
+		//法院代號
 		String courtId = data.getId().substring(0, 3);
 		System.out.println(courtId);
 		// 案由
@@ -68,7 +68,7 @@ public class ReadJsonTest {
 	// 刑法
 	@Test
 	public void lawTest1() {
-		String lawPattern1 = "刑法第\\d+條(第\\d+項)?(.{0,10}、刑法第\\d+條(第\\d+項)?)?";
+		String lawPattern1 = "(中華民國)?(刑法|)第\\d+條(第\\d+項)?(、刑法第\\d+條(第\\d+項)?)?";
 		readJsonTest(lawPattern1);
 	}
 
