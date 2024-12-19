@@ -48,15 +48,15 @@ public class LegalCaseParser {
 
 	// 假設的提取方法，可以根據需要進行擴展和改進
 	private static String extractDefendantName(String fullText) {
-		// 假設被告名字是「被告」之後的第一個詞，這是一個簡單的範例
-		if (fullText.contains("被　　　告")) {
+		// 假設被告名字是「被告」之後的第一個詞
+		if (fullText.contains("/被　　　告|被告/")) {
 			return fullText.split("被　　　告")[1].split("\n")[0].trim();
 		}
 		return "未知";
 	}
 
 	private static String extractLegalArticles(String fullText) {
-		// 假設「毒品危害防制條例」是法律名稱的關鍵字
+		// 「毒品危害防制條例」
 		if (fullText.contains("毒品危害防制條例")) {
 			return "毒品危害防制條例第十條第一項、第二項";
 		}
@@ -64,7 +64,7 @@ public class LegalCaseParser {
 	}
 
 	private static String extractSentence(String fullText) {
-		// 假設「判決如左」和「免刑」是判決內容的關鍵詞
+		// 「判決如左」和「免刑」
 		if (fullText.contains("判決如左")) {
 			return "免刑";
 		}
@@ -81,7 +81,7 @@ public class LegalCaseParser {
 
 	private static String extractSentenceDate(String fullText) {
 		// 假設判決日期出現在全文最後
-		if (fullText.contains("中    華    民    國")) {
+		if (fullText.contains("中    華    民    國")||fullText.contains("中華民國")) {
 			return fullText.split("中    華    民    國")[1].split("日")[0].trim();
 		}
 		return "未知";

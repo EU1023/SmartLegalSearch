@@ -46,6 +46,7 @@ public enum ResMessage {
 	COMPUTER_CRIMES("妨害電腦使用罪");
 
 	private final String crimeName;
+	
 
 	private ResMessage(String crimeName) {
 		this.crimeName = crimeName;
