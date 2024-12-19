@@ -26,6 +26,9 @@ public enum ResMessage {
 	FAMILY_OFFENSE("§«®`®a®x¸o"), //
 	INSULT("¤½µM«V°d¸o"), //
 	EMBEZZLEMENT("«I¥e¸o"), //
+	HIT_AND_RUN("»F¨Æ°k¶h¸o"),
+    NEGLIGENCE_CAUSING_DEATH("¹L¥¢­P¦º¸o"),
+    NEGLIGENCE_CAUSING_INJURY("¹L¥¢¶Ë®`¸o"),
 
 	// ¯S®íªk«ßªº¸o¦D
 	REBELLION("¤º¶Ã¸o"), //
