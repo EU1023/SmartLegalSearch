@@ -3,6 +3,7 @@ package SmartLegalSearch;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -21,7 +22,8 @@ public class ReadJsonTest {
     private ReadJson readJson = new ReadJson();
 
     // 檔案路徑
-    private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,金訴,625,20240523,1.json");
+//    private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,金訴,625,20240523,1.json");
+    private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,原金訴,26,20240503,5.json");
 
     // 取得判決主文
 // private String text = new String(data.getFull());
@@ -50,21 +52,28 @@ public class ReadJsonTest {
             index = matcher.end();
         }
         // 列印出所有蒐集到的內容
-        lowList.forEach(item -> {
-            System.out.println(item);
-        });
+//        lowList.forEach(item -> {
+//            System.out.println(item);
+//        });
         return lowList;
     }
 
-    // 法院代號、案由
+    // 案號、審理法院、案由
     @Test
-    public void courtIdAndchargeTest() {
-        // 法院代號
-        String courtId = data.getId().substring(0, 3);
-        System.out.println(courtId);
+    public void courtAndCharge() {
+        // 案號
+        String idPattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
+        String id = readJsonTest(idPattern).get(0);
+        System.out.println("案號: " + id);
+
+
+        // 審理法院
+        String court = data.getId().substring(0, 3);
+        System.out.println("法院代號: " + court);
+
         // 案由
         String charge = data.getTitle();
-        System.out.println(charge);
+        System.out.println("案由: " + charge);
     }
 
     // 刑法
@@ -81,16 +90,10 @@ public class ReadJsonTest {
         readJsonTest(lawPattern2);
     }
 
-    // 案號
-    @Test
-    public void idTest() {
-        String pattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
-        readJsonTest(pattern);
-    }
 
     // 判決日期(阿拉伯數字)
     @Test
-    public void date() {
+    public void verdictDate() {
         // 判決日
         String pattern = "中\\s{2}華\\s+民\\s{2}國\\s{2}([一二三四五六七八九十]|\\d){1,3}\\s+年\\s+" + "([一二三四五六七八九十]|\\d){1,2}\\s+月\\s{2}([一二三四五六七八九十]|\\d){1,3}\\s+日";
         ArrayList<String> dateStrList = readJsonTest(pattern);
@@ -135,24 +138,6 @@ public class ReadJsonTest {
         return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
     }
 
-    // 被告姓名
-    @Test
-    public void defendantName() {
-        // \\p{IsHan} 是一個 Unicode 屬性，用來匹配任何漢字。
-        String pattern = "被\\s*告\\s*(\\p{IsHan}+)\\s*上列";
-        Pattern compiledPattern = Pattern.compile(pattern);
-        Matcher matcher = compiledPattern.matcher(data.getFull());
-
-        List<String> defendantName = new ArrayList<>();
-
-        while (matcher.find()) {
-            defendantName.add(matcher.group(1));
-            System.out.println("被告名字: " + matcher.group(1));
-        }
-
-        System.out.println(defendantName);
-    }
-
     // 事實
     @Test
     public void facts() {
@@ -170,7 +155,7 @@ public class ReadJsonTest {
     // 理由
     @Test
     public void motive() {
-        String pattern = "理\\s*由([\\s\\S]*?依法論科。)";
+        String pattern = "理\\s*由([\\s\\S]*?應依法論科。)";
         Pattern compiledPattern = Pattern.compile(pattern);
         Matcher matcher = compiledPattern.matcher(data.getFull());
 
@@ -180,6 +165,127 @@ public class ReadJsonTest {
         }
     }
 
+    // 刑罰
+    @Test
+    public void penalties() {
+        // 刑罰內容
+        String penalties = "";
+        String penaltiesPattern = "主\\s*文([\\s\\S]+?)事\\s*實";
+
+        Pattern compiledPenalties = Pattern.compile(penaltiesPattern);
+        Matcher penaltiesMatcher = compiledPenalties.matcher(data.getFull());
+
+        if (penaltiesMatcher.find()) {
+            // 去除文本首尾空白，及移除文內多餘空白(半形、全形)
+            penalties = penaltiesMatcher.group(1).trim()
+                    .replaceAll("[\\s\\u3000]+", "");
+//            System.out.println(penalties);
+        }
+
+        // 刑罰類型
+        String type = "";
+        String typePattern = "處([\\s\\S]*?刑)";
+
+        Pattern compiledType = Pattern.compile(typePattern);
+        Matcher typeMatcher = compiledType.matcher(penalties);
+
+        if (typeMatcher.find()) {
+            type = typeMatcher.group(1).replaceAll("[\\s\\u3000]+", "");
+        }
+        System.out.println("刑罰類型: " + type);
+
+        // 刑期月數
+        String months = "";
+        String monthsPattern = "處有期徒刑([\\s\\S]*?)月";
+
+        Pattern compiledMonths = Pattern.compile(monthsPattern);
+        Matcher monthsMatcher = compiledMonths.matcher(penalties);
+
+        if (monthsMatcher.find()) {
+            months = monthsMatcher.group(1);
+        }
+        System.out.println("刑罰月數: " + months);
+
+        // 罰金類型
+        String fineType = "";
+        String fineTypePattern = "([專選併易]科)罰金";
+
+        Pattern compiledFineType = Pattern.compile(fineTypePattern);
+        Matcher fineTypeMatcher = compiledFineType.matcher(penalties);
+
+        if (fineTypeMatcher.find()) {
+            fineType = fineTypeMatcher.group(1);
+        }
+        System.out.println("罰金類型: " + fineType);
+
+
+        // 罰金金額
+        String fine = "";
+        String finePattern = "新臺幣([\\s\\S]*?)元";
+
+        Pattern compiledFine = Pattern.compile(finePattern);
+        Matcher fineMatcher = compiledFine.matcher(penalties);
+
+        if (fineMatcher.find()) {
+            fine = fineMatcher.group(1);
+        }
+        System.out.println("罰金金額: " + fine);
+    }
+
+    // 關係人
+    @Test
+    public void relatedParties() {
+        // 類型角色：被告
+        String pattern = "被\\s*告\\s*(\\p{IsHan}+)\\s*上列";  // \\p{IsHan} 可匹配任何漢字。
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(data.getFull());
+
+        List<String> defendantName = new ArrayList<>();
+
+        while (matcher.find()) {
+            defendantName.add(matcher.group(1));
+//            System.out.println("被告姓名: " + matcher.group(1));
+        }
+
+        System.out.println("被告姓名: " + defendantName);
+
+        // 類型角色：法官
+        String context = "";
+        String contextPattern = "刑事第.*庭.*法.*官.*([\\s\\S]*?)以上正本證明與原本無異";
+
+        Pattern compiledContext = Pattern.compile(contextPattern);
+        Matcher contextMatcher = compiledContext.matcher(data.getFull());
+
+        // 先取得部分文本
+        if (contextMatcher.find()) {
+            context = contextMatcher.group();
+        }
+
+        List<String> judgeName = new ArrayList<>();
+        String judgeNamePattern = "官\\s*([\\S\\s]+?)以上正本";
+        Pattern compiledJudgeName = Pattern.compile(judgeNamePattern);
+        Matcher judgeNameMatcher = compiledJudgeName.matcher(context);
+
+        while (judgeNameMatcher.find()) {
+            judgeName.add(judgeNameMatcher.group(1).trim()
+                    .replaceAll("[\\s\\u3000]+", ""));
+//            System.out.println("法官姓名: " + judgeNameMatcher.group(1));
+        }
+
+        System.out.println("法官姓名: " + judgeName);
+    }
+
+    // 相關法條
+    @Test
+    public void law() {
+        String pattern = "主\\s*文\\s*\\S*犯([\\s\\S]+?罪)";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        Matcher matcher = compiledPattern.matcher(data.getFull());
+
+        if (matcher.find()) {
+            System.out.println(matcher.group(1));
+        }
+    }
 
 
 
