@@ -1,10 +1,8 @@
 package SmartLegalSearch;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,162 +15,150 @@ import SmartLegalSearch.vo.ReadJsonVo;
 //@SpringBootTest
 public class ReadJsonTest {
 
-	// Åª¨ú¥»¦aºİ Json ÀÉ®×¥Î
+	// è®€å–æœ¬åœ°ç«¯ Json æª”æ¡ˆç”¨
 	private ReadJson readJson = new ReadJson();
 
-	// ÀÉ®×¸ô®|
-	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\KSDM,86,¶D,3155,20000828.json");
+	// æª”æ¡ˆè·¯å¾‘
+//    private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\KLDM,113,è¨´,29,20240524,1.json");
+	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\è‡ºç£åŸºéš†åœ°æ–¹æ³•é™¢åˆ‘äº‹\\KLDM,112,è¨´,382,20240502,1.json");
 
-	// ¨ú±o§P¨M¥D¤å
+	// å–å¾—åˆ¤æ±ºä¸»æ–‡
 //	private String text = new String(data.getFull());
 
-	// ¾ã²z¤å³¹¤¤¦h¾lªÅ®æ(¤@¯ëªÅ¥Õ¡B¥ş§ÎªÅ¥Õ)¸ò¸õ²æ²Å¸¹ : ·|¨S¿ìªk¥Î matcher
-	private String cleanText = data.getFull().replaceAll("\n|\r|¡@| ", " ");
+	// æ•´ç†æ–‡ç« ä¸­å¤šé¤˜ç©ºæ ¼(ä¸€èˆ¬ç©ºç™½ã€å…¨å½¢ç©ºç™½)è·Ÿè·³è„«ç¬¦è™Ÿ : æœƒæ²’è¾¦æ³•ç”¨ matcher
+	private String cleanText = data.getFull().replaceAll("\n|\r|ã€€| ", " ");
 
-	// ¤¤¤å¼Æ¦rÂà´«ªü©Ô§B¼Æ¦r¥Î¤u¨ã Map
-	private Map<String, Integer> number = Map.of("¤@", 1, "¤G", 2, "¤T", 3, "¥|", 4, "¤­", 5, "¤»", 6, "¤C", 7, "¤K", 8, "¤E", 9,
-			"¤Q", 10);
+	// ä¸­æ–‡æ•¸å­—è½‰æ•¸å­—
+	public static int convertChineseToArabic(String chineseNumber) {
+		int result = 0; // æœ€çµ‚çš„çµæœï¼Œå­˜å„²è½‰æ›å¾Œçš„æ•¸å­—
+		int temp = 0; // ç”¨ä¾†ç´¯ç©æ¯ä¸€éƒ¨åˆ†çš„æ•¸å­—
+		// è™•ç†ã€Œç™¾ã€çš„éƒ¨åˆ†ï¼Œé€™ä¸€æ­¥å…ˆè¡Œ
+		if (chineseNumber.contains("ç™¾")) {
+			String[] parts = chineseNumber.split("ç™¾");
+			// è™•ç†ã€Œç™¾ã€å‰çš„éƒ¨åˆ†
+			if (!parts[0].isEmpty()) {
+				temp = processDigits(parts[0]);
+			} else {
+				temp = 1; // å¦‚æœã€Œç™¾ã€å‰é¢æ²’æœ‰æ•¸å­—ï¼Œå‰‡è¦–ç‚º 1
+			}
+			result += temp * 100; // çµ¦çµæœåŠ ä¸Šã€Œç™¾ã€å¾Œçš„éƒ¨åˆ†
+			chineseNumber = parts.length > 1 ? parts[1] : ""; // å»æ‰å·²ç¶“è™•ç†éçš„ã€Œç™¾ã€å¾Œé¢éƒ¨åˆ†
+		}
+		// è™•ç†ã€Œåã€çš„éƒ¨åˆ†
+		if (chineseNumber.contains("å")) {
+			String[] parts = chineseNumber.split("å");
+			// è™•ç†ã€Œåã€å‰çš„éƒ¨åˆ†
+			if (!parts[0].isEmpty()) {
+				temp = processDigits(parts[0]);
+			} else {
+				temp = 1; // å¦‚æœã€Œåã€å‰é¢æ²’æœ‰æ•¸å­—ï¼Œå‰‡è¦–ç‚º 1 å
+			}
+			result += temp * 10; // çµ¦çµæœåŠ ä¸Šã€Œåã€å¾Œçš„éƒ¨åˆ†
+			chineseNumber = parts.length > 1 ? parts[1] : ""; // å»æ‰å·²ç¶“è™•ç†éçš„ã€Œåã€å¾Œé¢éƒ¨åˆ†
+		}
+		// è™•ç†å‰©ä¸‹çš„æ•¸å­—éƒ¨åˆ†
+		if (!chineseNumber.isEmpty()) {
+			result += processDigits(chineseNumber); // å°‡å‰©ä¸‹çš„éƒ¨åˆ†è½‰æ›
+		}
+		return result; // è¿”å›è½‰æ›å¾Œçš„æ•¸å­—
+	}
 
+	// è™•ç†å‰©é¤˜çš„æ•¸å­—éƒ¨åˆ†
+	private static int processDigits(String digits) {
+		int value = 0;
+		// ä¸­æ–‡æ•¸å­—è½‰æ›æ˜ å°„
+		Map<String, Integer> number = Map.of("ä¸€", 1, "äºŒ", 2, "ä¸‰", 3, "å››", 4, "äº”", 5, "å…­", 6, "ä¸ƒ", 7, "å…«", 8, "ä¹", 9);
+		for (int i = 0; i < digits.length(); i++) {
+			String currentChar = digits.substring(i, i + 1);
+			if (number.containsKey(currentChar)) {
+				value += number.get(currentChar);
+			}
+		}
+		return value;
+	}
+
+	// å°‡æ­£æ–‡ä¸­çš„ä¸­æ–‡æ•¸å­—è½‰æ›ç‚ºé˜¿æ‹‰ä¼¯æ•¸å­—
+	public static String replaceChineseNumbers(String text) {
+		// æ­£å‰‡è¡¨é”å¼åŒ¹é…ä¸­æ–‡æ•¸å­—
+		String pattern = "[ä¸€äºŒä¸‰å››äº”å…­ä¸ƒå…«ä¹åç™¾]+";
+		Pattern compiledPattern = Pattern.compile(pattern);
+		Matcher matcher = compiledPattern.matcher(text);
+
+		// ä½¿ç”¨ StringBuffer å„²å­˜è™•ç†å¾Œçš„çµæœ
+		StringBuffer processedText = new StringBuffer();
+		while (matcher.find()) {
+			// å–å¾—åŒ¹é…åˆ°çš„ä¸­æ–‡æ•¸å­—
+			String chineseNumber = matcher.group();
+			// å°‡ä¸­æ–‡æ•¸å­—è½‰æ›ç‚ºé˜¿æ‹‰ä¼¯æ•¸å­—
+			int arabicNumber = convertChineseToArabic(chineseNumber);
+			// ç”¨é˜¿æ‹‰ä¼¯æ•¸å­—æ›¿æ›æ‰ä¸­æ–‡æ•¸å­—
+			matcher.appendReplacement(processedText, String.valueOf(arabicNumber));
+		}
+		// æ·»åŠ å‰©é¤˜çš„æ–‡æœ¬
+		matcher.appendTail(processedText);
+		return processedText.toString();
+	}
+
+	// æå–æ­£æ–‡
 	public ArrayList<String> readJsonTest(String pattern) {
-		// §ä¥X§P¨M®Ñ¤¤ªº²Å¦X pattern ªº¬q¸¨
-		Pattern lowPattern = Pattern.compile(pattern);
-		// ¶i¦æ¤ñ¹ï: .group¥i¨ú¥X²Å¦X±ø¥óªº¦r¦ê¬q¡B.start©Î.end·|¦^¶Ç²Å¦X±ø¥óªº¶}©l¦ì¸m©Îµ²§ô¦ì¸m
-		Matcher matcher = lowPattern.matcher(cleanText);
-		// ¥Î©ó»`¶°©Ò¦³²Å¦X±ø¥óªº¦r¦ê¬q
-		ArrayList<String> lowList = new ArrayList<>();
-		// ¥Î©ó¬ö¿ı²Å¦X±ø¥óªº¦r¦ê¬q³Ì«á¤@­Ó¦ì¸mindex¦ì¸m
-		int index = 0;
-		// ³z¹L°j°é´M§ä¬O§_¦³²Å¦X±ø¥óªº¤º®e (index ¬°¤W¤@­Ó²Å¦X±ø¥óªº¤å¦r¬q¤¤³Ì«á¤@­Ó¦r¦b¦r¦ê¤¤ªº¦ì¸m)
-		while (matcher.find(index)) {
-			// »`¶°©Ò¦³²Å¦X±ø¥óªº¦r¦ê¬q
-			lowList.add(matcher.group());
-			// ¬ö¿ı²Å¦X±ø¥óªº¦r¦ê¬q³Ì«á¤@­Ó¦r¦bindexªº¦ì¸m
-			index = matcher.end();
-		}
-		// ¦C¦L¥X©Ò¦³»`¶°¨ìªº¤º®e
-		lowList.forEach(item -> {
-			System.out.println(item);
-		});
-		return lowList;
+	    // æ‰¾å‡ºåˆ¤æ±ºæ›¸ä¸­çš„ç¬¦åˆ pattern çš„æ®µè½
+	    Pattern lowPattern = Pattern.compile(pattern);
+	    Matcher matcher = lowPattern.matcher(cleanText);
+	    HashSet<String> lowSet = new HashSet<>(); // ä½¿ç”¨ HashSet ä¾†å»é‡
+	    int index = 0;
+	    
+	    // é€éè¿´åœˆå°‹æ‰¾æ˜¯å¦æœ‰ç¬¦åˆæ¢ä»¶çš„å…§å®¹
+	    while (matcher.find(index)) {
+	        // ä½¿ç”¨ HashSet ä¾†è‡ªå‹•å»é‡
+	        lowSet.add(matcher.group());
+	        index = matcher.end();
+	    }
+
+	    // è¿”å›è½‰æ›ç‚º ArrayList
+	    return new ArrayList<>(lowSet);
 	}
 
-	// ªk°|¥N¸¹¡B®×¥Ñ
+	// ä¸»æ–¹æ³•ä¾†æå–ä¸¦è½‰æ›æ³•å¾‹æ¢æ–‡
 	@Test
-	public void courtIdAndchargeTest() {
-		// ªk°|¥N¸¹
-		String courtId = data.getId().substring(0, 3);
-		System.out.println(courtId);
-		// ®×¥Ñ
-		String charge = data.getTitle();
-		System.out.println(charge);
-	}
+	public void extractAndConvertLegalText() {
+	    // å®šç¾©æ³•å¾‹æ¢æ–‡çš„æ­£å‰‡è¡¨é”å¼
+	    String lawPattern1 = "(æ¯’å“å±å®³é˜²åˆ¶æ¢ä¾‹|é™¸æµ·ç©ºè»åˆ‘æ³•|ç…™å®³é˜²åˆ¶æ³•|è²ªæ±¡æ²»ç½ªæ¢ä¾‹|å±±å¡åœ°ä¿è‚²åˆ©ç”¨æ¢ä¾‹|åˆ‘æ³•|éŠ€è¡Œæ³•)ç¬¬\\d+æ¢(ç¬¬\\d+é …)?";
+	    // ä½¿ç”¨ readJsonTest æ–¹æ³•æå–æ‰€æœ‰ç¬¦åˆæ¢ä»¶çš„æ³•å¾‹æ¢æ–‡
+	    ArrayList<String> result = readJsonTest(lawPattern1);
+	    if (result.size() > 0) {
+	        // é¡¯ç¤ºç¬¬ä¸€æ¢æ³•å¾‹æ¢æ–‡
+	        String firstLawText = result.get(0);
+	        System.out.println("ç¬¬ä¸€å€‹æ³•å¾‹æ¢æ–‡: " + firstLawText);
+	    } else {
+	        System.out.println("æ²’æœ‰æ‰¾åˆ°æ³•å¾‹æ¢æ–‡ã€‚");
+	    }
+	}	
 
-	// ¦Dªk
-	@Test
-	public void lawTest1() {
-		String lawPattern1 = "¦Dªk²Ä\\d+±ø(²Ä\\d+¶µ)?(.{0,10}¡B¦Dªk²Ä\\d+±ø(²Ä\\d+¶µ)?)?";
-		readJsonTest(lawPattern1);
-	}
+	// äº‹å¯¦
+//	@Test
+//	public void facts() {
+//		// [\\s\\S] è¡¨ç¤ºæœƒåŒ¹é…æ‰€æœ‰ç©ºç™½å’Œéç©ºç™½å­—å…ƒï¼Œ*?è¡¨ç¤ºç†ç”±å‰çš„å…§å®¹
+//		String pattern = "äº‹\\s*å¯¦([\\s\\S]*?)ç†\\s*ç”±";
+//		Pattern compiledPattern = Pattern.compile(pattern);
+//		Matcher matcher = compiledPattern.matcher(data.getFull());
+//
+//		if (matcher.find()) {
+//			System.out.println("äº‹å¯¦ï¼š");
+//			System.out.println(matcher.group(1).trim());
+//		}
+//	}
 
-	// ¦D¨Æ¶D³^ªk
-	@Test
-	public void lawTest2() {
-		String lawPattern2 = "¦D¨Æ¶D³^ªk²Ä\\d+±ø(²Ä\\d+¶µ)?";
-		readJsonTest(lawPattern2);
-	}
-
-	// ®×¸¹
-	@Test
-	public void idTest() {
-		String pattern = "([¤@¤G¤T¥|¤­¤»¤C¤K¤E¤Q]|\\d){2,4}¦~«×(.){1,6}¦r²Ä([¤@¤G¤T¥|¤­¤»¤C¤K¤E¤Q]|\\d){1,5}¸¹";
-		readJsonTest(pattern);
-	}
-
-	// §P¨M¤é´Á(ªü©Ô§B¼Æ¦r)
-	@Test
-	public void date() {
-		// §P¨M¤é
-		String pattern = "¤¤µØ¥Á°ê([¤@¤G¤T¥|¤­¤»¤C¤K¤E¤Q]|\\d){1,3}¦~" + "([¤@¤G¤T¥|¤­¤»¤C¤K¤E¤Q]|\\d){1,2}¤ë([¤@¤G¤T¥|¤­¤»¤C¤K¤E¤Q]|\\d){1,3}¤é";
-		ArrayList<String> dateStrList = readJsonTest(pattern);
-
-		// ¨ú¥X²Ä¤@­Ó«á¥h°£ ¤¤µØ¥Á°ê «á¤À³Î¥Xªü©Ô§B¼Æ¦r
-		String[] dateStr = dateStrList.get(0).replaceAll("¤¤µØ¥Á°ê", "").split("¦~|¤ë|¤é");
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-		int year = (Integer.parseInt(dateStr[0]) + 1911);
-		if (dateStr[1].length() == 1) {
-			dateStr[1] = "0" + dateStr[1];
-		}
-		if (dateStr[2].length() == 1) {
-			dateStr[2] = "0" + dateStr[2];
-		}
-		String dateChar = year + "-" + dateStr[1] + "-" + dateStr[2];
-		LocalDate date = LocalDate.parse(dateChar, formatter);
-		System.out.println(date);
-
-	}
-
-	@Test
-	public void httpTest() {
-		// °²³] data.getId() ªğ¦^ªº id ¦r¦ê
-		String id = data.getId();
-		System.out.println("­ì©l ID: " + id);
-
-		// ¨Ï¥Î¥Í¦¨ºô§}ªº¤èªk¨Ó³Ğ«Øºô§}
-		String url = generateUrl(id);
-
-		// ª½±µ¦L¥X¥Í¦¨ªººô§}
-		System.out.println(url);
-	}
-
-	// ¥Í¦¨ºô§}ªº¤èªk
-	public String generateUrl(String id) {
-		// ´À´«³r¸¹¬° URL ­İ®e®æ¦¡
-		String encodedId = id.replace(",", "%2c"); // ³B²z³r¸¹
-		// encodedId = encodedId.replace("ª÷¶D", "%e9%87%91%e8%a8%b4"); //
-		// ³B²z¤¤¤å¡]¥i¥H®Ú¾Ú»İ¨DÂX®i½s½X³W«h¡^
-
-		// ªğ¦^²Õ¦X¦nªººô§}
-		return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
-	}
-	//
-	@Test 
-	public void legalEntityExtractor() {
-		// ¥Ü¨Ò¤å¥»
-        String text = "±i¤T¹H¤Ï¡m¦Dªk¡n²Ä22±ø¡A§P³B¦³´Á®{¦D¤T¦~";
-
-        // ¥¿³Wªí¹F¦¡¼Ò¦¡
-        Map<String, String> patterns = new HashMap<>();
-        patterns.put("DEFENDANT", "[\u4e00-\u9fa5]{2,4}");  // 2¨ì4­Óº~¦rªº¤H¦W
-        patterns.put("LAW", "¡m[\u4e00-\u9fa5]+¡n");         // ªk«ß¦WºÙ¡A¦p¡m¦Dªk¡n
-        patterns.put("ARTICLE", "²Ä\\d+±ø");                // ªk«ß±ø¤å¡A¦p²Ä22±ø
-        patterns.put("SENTENCE", "§P³B[\u4e00-\u9fa5]+");    // §P¦D¤º®e¡A¦p§P³B¦³´Á®{¦D
-        patterns.put("TIME", "(\\d+¦~|\\d+¤ë|\\d+¤é|\\d+¤Ñ)"); // §P¦D®É¶¡¡A¦p¤T¦~¡A¤­¦~
-        patterns.put("VIOLATION", "¹H¤Ï[\u4e00-\u9fa5]+");   // ¹Hªk¤º®e¡A¦p¹H­Iªk«ß
-
-        // ¥Î¨Ó¦sÀx¤Ç°tµ²ªG
-        Map<String, List<String>> entities = new HashMap<>();
-
-        // ´£¨ú¤å¥»¤¤ªº¨C­Ó¹êÅé
-        for (Map.Entry<String, String> entry : patterns.entrySet()) {
-            String label = entry.getKey();
-            String pattern = entry.getValue();
-            List<String> matches = new ArrayList<>();
-
-            // ¨Ï¥Î¥¿«hªí¹F¦¡¬d§ä¤Ç°t
-            Pattern regex = Pattern.compile(pattern);
-            Matcher matcher = regex.matcher(text);
-
-            while (matcher.find()) {
-                matches.add(matcher.group());
-            }
-
-            entities.put(label, matches);
-        }
-
-        // ¥´¦L´£¨úµ²ªG
-        for (Map.Entry<String, List<String>> entry : entities.entrySet()) {
-            System.out.println(entry.getKey() + ": " + entry.getValue());
-        }
-	}
+	// ç†ç”±
+//	@Test
+//	public void motive() {
+//		String pattern = "ç†\\s*ç”±([\\s\\S]*?ä¾æ³•è«–ç§‘ã€‚)";
+//		Pattern compiledPattern = Pattern.compile(pattern);
+//		Matcher matcher = compiledPattern.matcher(data.getFull());
+//
+//		if (matcher.find()) {
+//			System.out.println("ç†ç”±ï¼š");
+//			System.out.println(matcher.group(1).trim());
+//		}
+//	}
 
 }
