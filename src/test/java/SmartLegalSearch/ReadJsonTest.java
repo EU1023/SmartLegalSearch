@@ -3,6 +3,7 @@ package SmartLegalSearch;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,14 +20,25 @@ public class ReadJsonTest {
 	private ReadJson readJson = new ReadJson();
 
 	// 檔案路徑
-//    private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\KLDM,113,訴,29,20240524,1.json");
-	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,訴,382,20240502,1.json");
+	//銀行法第125條第1項
+//    private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,金重訴,2,20240528,2.json");
+    //洗錢防制法第十四條第一項
+//    private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,金訴,562,20240516,1.json");
+    //山坡地保育利用條例第三十四條
+//    private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,訴,237,20240520,1.json");
+    //洗錢防制法第十四條第一項
+    private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,113,基金簡,58,20240520,1.json");
 
+    
 	// 取得判決主文
-//	private String text = new String(data.getFull());
+	private String text = new String(data.getFull());
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
-	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", " ");
+//	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", " ");
+	String cleanText = data.getFull().replaceAll("[\\r|\\n|\\s]+", " ");
+//	String cleanText = data.getFull().replaceAll("[\\r\\n]+", " "); 
+//	String cleanText = data.getFull().replaceAll("[\\r\\n]+", " ").replaceAll("\\s{2,}", " "); // 替換多餘的空白符
+
 
 	// 中文數字轉數字
 	public static int convertChineseToArabic(String chineseNumber) {
@@ -76,64 +88,61 @@ public class ReadJsonTest {
 		}
 		return value;
 	}
-
-	// 將正文中的中文數字轉換為阿拉伯數字
-	public static String replaceChineseNumbers(String text) {
-		// 正則表達式匹配中文數字
-		String pattern = "[一二三四五六七八九十百]+";
-		Pattern compiledPattern = Pattern.compile(pattern);
-		Matcher matcher = compiledPattern.matcher(text);
-
-		// 使用 StringBuffer 儲存處理後的結果
-		StringBuffer processedText = new StringBuffer();
-		while (matcher.find()) {
-			// 取得匹配到的中文數字
-			String chineseNumber = matcher.group();
-			// 將中文數字轉換為阿拉伯數字
-			int arabicNumber = convertChineseToArabic(chineseNumber);
-			// 用阿拉伯數字替換掉中文數字
-			matcher.appendReplacement(processedText, String.valueOf(arabicNumber));
-		}
-		// 添加剩餘的文本
-		matcher.appendTail(processedText);
-		return processedText.toString();
+	
+	// 方法：將文件內文中的中文數字轉換為阿拉伯數字
+	public String convertTextChineseNumbers(String text) {
+	    // 匹配中文數字的正則表達式（針對 "第十四條" 和 "第十四項" 等格式）
+	    Pattern pattern = Pattern.compile("第([一二三四五六七八九十百零]+)(條|項)");
+	    Matcher matcher = pattern.matcher(text);
+	    // 用於存放轉換後的結果
+	    StringBuffer result = new StringBuffer();
+	    // 遍歷匹配的中文數字
+	    while (matcher.find()) {
+	        String chineseNumber = matcher.group(1); // 提取中文數字部分
+	        int arabicNumber = convertChineseToArabic(chineseNumber); // 轉換為阿拉伯數字
+	        String replacement = "第" + arabicNumber + matcher.group(2); // 組合成替換後的字符串
+	        matcher.appendReplacement(result, replacement); // 替換匹配到的部分
+	    }
+	    matcher.appendTail(result); // 添加剩餘部分
+	    return result.toString();
 	}
 
 	// 提取正文
 	public ArrayList<String> readJsonTest(String pattern) {
-	    // 找出判決書中的符合 pattern 的段落
+		// 找出判決書中的符合 pattern 的段落
 	    Pattern lowPattern = Pattern.compile(pattern);
-	    Matcher matcher = lowPattern.matcher(cleanText);
-	    HashSet<String> lowSet = new HashSet<>(); // 使用 HashSet 來去重
+	    String cleanText1 = convertTextChineseNumbers(cleanText);
+		// 使用正則匹配
+	    Matcher matcher = lowPattern.matcher(cleanText1); // cleanText 是您的判決書正文
+	 // 使用 LinkedHashSet 來去重並保持插入順序
+	    LinkedHashSet<String> lawList = new LinkedHashSet<>();
 	    int index = 0;
-	    
 	    // 透過迴圈尋找是否有符合條件的內容
 	    while (matcher.find(index)) {
-	        // 使用 HashSet 來自動去重
-	        lowSet.add(matcher.group());
+//	        System.out.println("找到法條: " + matcher.group() + " 在位置 " + matcher.start() + " 到 " + matcher.end());
+	        lawList.add(matcher.group());
 	        index = matcher.end();
 	    }
-
-	    // 返回轉換為 ArrayList
-	    return new ArrayList<>(lowSet);
+	    // 返回轉換為 ArrayList 以便返回結果
+	    System.out.println(lawList);
+	    return new ArrayList<>(lawList);
 	}
-
-	// 主方法來提取並轉換法律條文
-	@Test
+	
+	@Test // 主方法來提取並轉換法律條文
 	public void extractAndConvertLegalText() {
-	    // 定義法律條文的正則表達式
-	    String lawPattern1 = "(毒品危害防制條例|陸海空軍刑法|煙害防制法|貪污治罪條例|山坡地保育利用條例|刑法|銀行法)第\\d+條(第\\d+項)?";
-	    // 使用 readJsonTest 方法提取所有符合條件的法律條文
-	    ArrayList<String> result = readJsonTest(lawPattern1);
-	    if (result.size() > 0) {
-	        // 顯示第一條法律條文
-	        String firstLawText = result.get(0);
-	        System.out.println("第一個法律條文: " + firstLawText);
-	    } else {
-	        System.out.println("沒有找到法律條文。");
-	    }
-	}	
-
+		// 定義法律條文的正則表達式，這個正則表達式會匹配各種法條
+	    String lawPattern = "(洗錢防制法|毒品危害防制條例|陸海空軍刑法|煙害防制法|貪污治罪條例|山坡地保育利用條例|銀行法|刑法)第\\d+條(第\\d+項)?";
+        // 提取法條
+        ArrayList<String> extractedLaws = readJsonTest(lawPattern);
+        // 輸出結果
+        if (!extractedLaws.isEmpty()) {
+        	System.out.println("所有找到的法條: " + extractedLaws); // 列出所有法條
+            System.out.println("第 1 個法條: " + extractedLaws.get(0)); // 取第一個法條
+        } else {
+            System.out.println("沒有找到任何法條。");
+        }
+	}
+	
 	// 事實
 //	@Test
 //	public void facts() {
