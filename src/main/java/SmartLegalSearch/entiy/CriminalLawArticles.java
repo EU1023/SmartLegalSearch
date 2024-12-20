@@ -2,9 +2,9 @@ package SmartLegalSearch.entiy;
 
 public class CriminalLawArticles {
 
-	// ¸o¦W½s¸¹
+	// ç½ªåç·¨è™Ÿ
 	private String id;
-	// ¸o¦W¦WºÙ
+	// ç½ªååç¨±
 	private String crimeName;
 
 	public CriminalLawArticles() {
@@ -33,6 +33,4 @@ public class CriminalLawArticles {
 	public void setCrimeName(String crimeName) {
 		this.crimeName = crimeName;
 	}
-	
-	
 }

@@ -1,4 +1,4 @@
-package SmartLegalSearch.Service;
+package SmartLegalSearch.service;
 
 public interface CrimeService {
 

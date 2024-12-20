@@ -26,9 +26,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	// mysql connectoor
 	implementation 'com.mysql:mysql-connector-j'
-	// ¸ê®ÆÅçÃÒ
+	// è³‡æ–™é©—è­‰
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// Åª JSON ÀÉ
+	// JSONè®€å–
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
 	
 	

@@ -14,22 +14,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/")
 public class SmartLegalSearchController {
 
-	@GetMapping("hello")
-	public String getHello() {
-		return "{\"message\": \"Hello from Java\"}";
-	}
+    @GetMapping("hello")
+    public String getHello() {
+        return "{\"message\": \"Hello from Java\"}";
+    }
 
-	@PostMapping("/upload")
+    @PostMapping("/upload")
     public ResponseEntity<String> uploadJson(@RequestBody Map<String, Object> jsonData) {
-        // ¿é¥X±µ¦¬¨ìªº JSON ¸ê®Æ
-        System.out.println("±µ¦¬¨ìªº JSON ¸ê®Æ¡G" + jsonData);
+        // è¼¸å‡ºæ¥æ”¶åˆ°çš„ JSON è³‡æ–™
+        System.out.println("æ¥æ”¶åˆ°çš„ JSON è³‡æ–™ï¼š" + jsonData);
 
-        // ½d¨Ò¡G´£¨ú¬Y¨ÇÄæ¦ì¶i¦æ³B²z
+        // ç¯„ä¾‹ï¼šæå–æŸäº›æ¬„ä½é€²è¡Œè™•ç†
         String jid = (String) jsonData.get("JID");
         String title = (String) jsonData.get("JTITLE");
-        System.out.println("®×¥ó ID: " + jid + ", ¼ĞÃD: " + title);
+        System.out.println("æ¡ˆä»¶ ID: " + jid + ", æ¨™é¡Œ: " + title);
 
-        // ¦^À³¦¨¥\°T®§
-        return ResponseEntity.ok("JSON ¸ê®Æ±µ¦¬¦¨¥\¡I");
+        // å›æ‡‰æˆåŠŸè¨Šæ¯
+        return ResponseEntity.ok("JSON è³‡æ–™æ¥æ”¶æˆåŠŸï¼");
     }
 }

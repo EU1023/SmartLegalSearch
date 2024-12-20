@@ -8,24 +8,24 @@ import java.io.File;
 import java.io.IOException;
 
 public class ReadJson {
-	
+
 	/**
-	 * 
-	 * @param filePosition ÀÉ®×ªºµ´¹ï¸ô®|
-	 * @return  ¸ô®|¥¿½Tªº¸Ü·|¦^¶Ç ReadJsonVo ¡A¤£¥¿½Tªº¸Ü·|¦^¶Ç null
+	 *
+	 * @param filePosition æª”æ¡ˆçš„çµ•å°è·¯å¾‘
+	 * @return  è·¯å¾‘æ­£ç¢ºçš„è©±æœƒå›å‚³ ReadJsonVo ï¼Œä¸æ­£ç¢ºçš„è©±æœƒå›å‚³ null
 	 */
 	public ReadJsonVo readJson(String filePosition){
 		ObjectMapper objectMapper = new ObjectMapper();
-	     try {
-	         // Åª¨ú JSON ÀÉ®×¨ÃÂà´«¬° ReadJsonVo Ãş§O
-	    	 File file = new File(filePosition);
-	         ReadJsonVo data = objectMapper.readValue(file, ReadJsonVo.class);
-	         return data;
-	     } catch (IOException e) {
-	         e.printStackTrace();
-	     }	
-	     return null;
+		try {
+			// è®€å– JSON æª”æ¡ˆä¸¦è½‰æ›ç‚º ReadJsonVo é¡åˆ¥
+			File file = new File(filePosition);
+			ReadJsonVo data = objectMapper.readValue(file, ReadJsonVo.class);
+			return data;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	
+
 }

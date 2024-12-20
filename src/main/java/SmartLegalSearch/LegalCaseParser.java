@@ -10,31 +10,31 @@ import SmartLegalSearch.dto.CaseInfo;
 public class LegalCaseParser {
 
 	public static void main(String[] args) {
-		// ³]¸m JSON ¤å¥óªº¸ô®|
-//	    String filePath = "D:\\JavaProject\\KSDM,86,¶D,3155,20000828.json";
-//		String filePath = "D:\\JavaProject\\KSDM,87,¶D,1410,20000831.json";
-		String filePath = "D:\\JavaProject\\KLDM,113,¶D,29,20240524,1.json";
-		// ³Ğ«Ø ObjectMapper ¨ÓÅª¨ú JSON ¤å¥ó
+		// è¨­ç½® JSON æ–‡ä»¶çš„è·¯å¾‘
+//	    String filePath = "D:\\JavaProject\\KSDM,86,è¨´,3155,20000828.json";
+//		String filePath = "D:\\JavaProject\\KSDM,87,è¨´,1410,20000831.json";
+		String filePath = "D:\\JavaProject\\KLDM,113,è¨´,29,20240524,1.json";
+		// å‰µå»º ObjectMapper ä¾†è®€å– JSON æ–‡ä»¶
 		ObjectMapper objectMapper = new ObjectMapper();
 
 		try {
-			// Åª¨ú JSON ¤å¥ó¨Ã±N¨ä¬M®g¬° CaseInfo Ãş
+			// è®€å– JSON æ–‡ä»¶ä¸¦å°‡å…¶æ˜ å°„ç‚º CaseInfo é¡
 			CaseInfo caseInfo = objectMapper.readValue(new File(filePath), CaseInfo.class);
 
-			// ¿é¥X¸ÑªR«áªºµ²ªG
+			// è¼¸å‡ºè§£æå¾Œçš„çµæœ
 			System.out.println(caseInfo);
 
-			// ±q fullText ¤¤´£¨úÃöÁä¸ê®Æ
+			// å¾ fullText ä¸­æå–é—œéµè³‡æ–™
 			String fullText = caseInfo.getFullText();
 
-			// ³o¸Ì¥i¥H¨Ï¥Î¥¿³Wªí¹F¦¡©ÎÂ²³æªº¦r²Å¦ê³B²z¨Ó´£¨úÃöÁä«H®§
+			// é€™è£¡å¯ä»¥ä½¿ç”¨æ­£è¦è¡¨é”å¼æˆ–ç°¡å–®çš„å­—ç¬¦ä¸²è™•ç†ä¾†æå–é—œéµä¿¡æ¯
 			String defendantName = extractDefendantName(fullText);
 			String legalArticles = extractLegalArticles(fullText);
 			String sentence = extractSentence(fullText);
 			String violationContent = extractViolationContent(fullText);
 			String sentenceDate = extractSentenceDate(fullText);
 
-			// Åã¥Ü´£¨úªºÃöÁä¸ê®Æ
+			// é¡¯ç¤ºæå–çš„é—œéµè³‡æ–™
 			System.out.println("Defendant Name: " + defendantName);
 			System.out.println("Legal Articles: " + legalArticles);
 			System.out.println("Sentence: " + sentence);
@@ -46,44 +46,44 @@ public class LegalCaseParser {
 		}
 	}
 
-	// °²³]ªº´£¨ú¤èªk¡A¥i¥H®Ú¾Ú»İ­n¶i¦æÂX®i©M§ï¶i
+	// å‡è¨­çš„æå–æ–¹æ³•ï¼Œå¯ä»¥æ ¹æ“šéœ€è¦é€²è¡Œæ“´å±•å’Œæ”¹é€²
 	private static String extractDefendantName(String fullText) {
-		// °²³]³Q§i¦W¦r¬O¡u³Q§i¡v¤§«áªº²Ä¤@­Óµü
-		if (fullText.contains("/³Q¡@¡@¡@§i|³Q§i/")) {
-			return fullText.split("³Q¡@¡@¡@§i")[1].split("\n")[0].trim();
+		// å‡è¨­è¢«å‘Šåå­—æ˜¯ã€Œè¢«å‘Šã€ä¹‹å¾Œçš„ç¬¬ä¸€å€‹è©
+		if (fullText.contains("/è¢«ã€€ã€€ã€€å‘Š|è¢«å‘Š/")) {
+			return fullText.split("è¢«ã€€ã€€ã€€å‘Š")[1].split("\n")[0].trim();
 		}
-		return "¥¼ª¾";
+		return "æœªçŸ¥";
 	}
 
 	private static String extractLegalArticles(String fullText) {
-		// ¡u¬r«~¦M®`¨¾¨î±ø¨Ò¡v
-		if (fullText.contains("¬r«~¦M®`¨¾¨î±ø¨Ò")) {
-			return "¬r«~¦M®`¨¾¨î±ø¨Ò²Ä¤Q±ø²Ä¤@¶µ¡B²Ä¤G¶µ";
+		// ã€Œæ¯’å“å±å®³é˜²åˆ¶æ¢ä¾‹ã€
+		if (fullText.contains("æ¯’å“å±å®³é˜²åˆ¶æ¢ä¾‹")) {
+			return "æ¯’å“å±å®³é˜²åˆ¶æ¢ä¾‹ç¬¬åæ¢ç¬¬ä¸€é …ã€ç¬¬äºŒé …";
 		}
-		return "¥¼ª¾";
+		return "æœªçŸ¥";
 	}
 
 	private static String extractSentence(String fullText) {
-		// ¡u§P¨M¦p¥ª¡v©M¡u§K¦D¡v
-		if (fullText.contains("§P¨M¦p¥ª")) {
-			return "§K¦D";
+		// ã€Œåˆ¤æ±ºå¦‚å·¦ã€å’Œã€Œå…åˆ‘ã€
+		if (fullText.contains("åˆ¤æ±ºå¦‚å·¦")) {
+			return "å…åˆ‘";
 		}
-		return "¥¼ª¾";
+		return "æœªçŸ¥";
 	}
 
 	private static String extractViolationContent(String fullText) {
-		// ´£¨ú¹Hªk¤º®e
-		if (fullText.contains("¬I¥Î¦w«D¥L©R")) {
-			return "¬I¥Î¦w«D¥L©R¤Î®ü¬¥¦]";
+		// æå–é•æ³•å…§å®¹
+		if (fullText.contains("æ–½ç”¨å®‰éä»–å‘½")) {
+			return "æ–½ç”¨å®‰éä»–å‘½åŠæµ·æ´›å› ";
 		}
-		return "¥¼ª¾";
+		return "æœªçŸ¥";
 	}
 
 	private static String extractSentenceDate(String fullText) {
-		// °²³]§P¨M¤é´Á¥X²{¦b¥ş¤å³Ì«á
-		if (fullText.contains("¤¤    µØ    ¥Á    °ê")||fullText.contains("¤¤µØ¥Á°ê")) {
-			return fullText.split("¤¤    µØ    ¥Á    °ê")[1].split("¤é")[0].trim();
+		// å‡è¨­åˆ¤æ±ºæ—¥æœŸå‡ºç¾åœ¨å…¨æ–‡æœ€å¾Œ
+		if (fullText.contains("ä¸­    è¯    æ°‘    åœ‹")||fullText.contains("ä¸­è¯æ°‘åœ‹")) {
+			return fullText.split("ä¸­    è¯    æ°‘    åœ‹")[1].split("æ—¥")[0].trim();
 		}
-		return "¥¼ª¾";
+		return "æœªçŸ¥";
 	}
 }
