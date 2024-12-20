@@ -1,4 +1,4 @@
-package SmartLegalSearch.entiy;
+package SmartLegalSearch.entity;
 
 public class CriminalLawArticles {
 
