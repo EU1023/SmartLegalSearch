@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "criminal_case")
+@Table(name = "case")
 @IdClass(CaseId.class)
 public class Case { // 刑事案件
 
