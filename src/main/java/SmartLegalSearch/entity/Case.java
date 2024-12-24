@@ -6,8 +6,8 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "criminal_case")
-@IdClass(CriminalCaseId.class)
-public class CriminalCase { // 刑事案件
+@IdClass(CaseId.class)
+public class Case { // 刑事案件
 
     @Id
     @Column(name = "group_id")
@@ -40,13 +40,18 @@ public class CriminalCase { // 刑事案件
     private String judgeName; // 法官姓名
 
     @Column(name = "law")
-    private String law;
+    private String law; // 相關法條
 
+    @Column(name = "case_type")
+    private String caseType; // 案件類型，如刑事、民事、行政
 
-    public CriminalCase() {
+    @Column(name = "doc_type")
+    private String docType; // 文件類型，裁定或判決或釋字等
+
+    public Case() {
     }
 
-    public CriminalCase(String groupId, String id, String court, LocalDate date, String url, String charge, String text, String defendantName, String judgeName, String law) {
+    public Case(String groupId, String id, String court, LocalDate date, String url, String charge, String text, String defendantName, String judgeName, String law, String caseType, String docType) {
         this.groupId = groupId;
         this.id = id;
         this.court = court;
@@ -57,6 +62,8 @@ public class CriminalCase { // 刑事案件
         this.defendantName = defendantName;
         this.judgeName = judgeName;
         this.law = law;
+        this.caseType = caseType;
+        this.docType = docType;
     }
 
     public String getGroupId() {
@@ -97,5 +104,13 @@ public class CriminalCase { // 刑事案件
 
     public String getLaw() {
         return law;
+    }
+
+    public String getCaseType() {
+        return caseType;
+    }
+
+    public String getDocType() {
+        return docType;
     }
 }

@@ -1,5 +1,5 @@
 package SmartLegalSearch.service.ifs;
 
-public interface CriminalCaseService {
+public interface CaseService {
     void searchCriminalCase();
 }
