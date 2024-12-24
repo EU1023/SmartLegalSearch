@@ -23,4 +23,16 @@ public class CriminalCaseId implements Serializable {
         this.id = id;
         this.court = court;
     }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getCourt() {
+        return court;
+    }
 }

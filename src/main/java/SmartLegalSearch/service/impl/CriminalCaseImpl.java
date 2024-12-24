@@ -5,4 +5,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CriminalCaseImpl implements CriminalCaseService {
+
+    @Override
+    public void searchCriminalCase() {
+        
+    }
 }
