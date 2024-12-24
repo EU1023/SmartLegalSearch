@@ -21,8 +21,9 @@ import SmartLegalSearch.vo.ReadJsonVo;
 
 public class LegalCaseParser {
 	/*
-	 * group_id id court date text judge_name defendant_name url charge 案件群組識別碼
-	 * 案件的唯一識別碼 審理法院 案由 判決日期 判決內容 法官姓名 被告姓名 判決書連結
+	 * group_id id court date text judge_name defendant_name url charge case_type
+	 * doc_type案件群組識別碼 案件的唯一識別碼 審理法院 案由 判決日期 判決內容 法官姓名 被告姓名 判決書連結
+	 * 案件類型，如刑事(M)、民事(V)、行政(A) 文件類型，裁定或判決或釋字等
 	 */
 
 	// 讀取本地端 Json 檔案用
@@ -108,7 +109,7 @@ public class LegalCaseParser {
 	}
 
 	// 判決日期(阿拉伯數字)
-	public String verdictDate() {
+	public LocalDate verdictDate() {
 		// 匹配日期段落
 		String pattern = "中\\s*華\\s*民\\s*國\\s*([一二三四五六七八九十零百千\\d]{1,4})\\s*年\\s*([一二三四五六七八九十零\\d]{1,2})\\s*月\\s*([一二三四五六七八九十零\\d]{1,2})\\s*日";
 		ArrayList<String> dateStrList = readJson1Test(pattern);
@@ -129,8 +130,8 @@ public class LegalCaseParser {
 				throw new IllegalArgumentException("日期超出範圍: " + firstDateStr);
 			}
 
-			// 格式化日期
-			return String.format("%04d-%02d-%02d", year, month, day);
+			// 回傳 LocalDate 物件
+			return LocalDate.of(year, month, day);
 		} catch (Exception e) {
 			throw new RuntimeException("解析判決日期時發生錯誤: " + e.getMessage());
 		}
@@ -317,6 +318,8 @@ public class LegalCaseParser {
 		return laws; // 返回所有匹配到的法條
 	}
 
+//==============================================================================
+
 	// 被告姓名
 	private static String DefendantName(String fullText) {
 		// 匹配 "被告" 後的 2~4 個中文字符
@@ -364,6 +367,52 @@ public class LegalCaseParser {
 		return "未找到完整的判決內容區域";
 	}
 
+	// 案件類型，如刑事(M)、民事(V)、行政(A)
+	private static String CaseType() {
+		String jid = data.getId();
+		if (!jid.isEmpty() & jid != null) {
+			String uniqueIdPattern = "^([一-龥\\w]*([MVAPC]))";
+			Matcher matcher = Pattern.compile(uniqueIdPattern).matcher(jid);
+			if (matcher.find()) {
+				String caseType = matcher.group(2);
+				// 刑事 : M 民事 : V 行政 : A 懲戒 : P 審裁 : C
+				if (caseType.equals("M")) {
+					return "刑事";
+				}
+				if (caseType.equals("V")) {
+					return "民事";
+				}
+				if (caseType.equals("A")) {
+					return "行政";
+				}
+				if (caseType.equals("P")) {
+					return "懲戒";
+				}
+				if (caseType.equals("C")) {
+					return "審裁";
+				}
+			}
+		}
+		return "未知";
+	}
+
+	// 文件類型，裁定或判決或釋字等
+	private static String DocType(String fullText) {
+		
+		// 正規表示式：匹配包含法院名稱和「判決」、「裁定」、「釋字」的段落
+	    String patternStr = "(\\S*法院\\S*)\\s*(刑事|民事|行政)?\\s*(判決|裁定|釋字)";
+	    Pattern pattern = Pattern.compile(patternStr);
+	    Matcher matcher = pattern.matcher(fullText);
+	    // 檢查是否找到匹配
+	    if (matcher.find()) {
+	    	// 找到標記「判決、裁定、釋字」
+	        String docType = matcher.group(3); // 判決/裁定/釋字
+	        // 拼接結果並返回
+	        return docType;
+	    }
+		return "未知";
+	}
+
 //====================================================================
 
 	// 執行方法
@@ -381,7 +430,7 @@ public class LegalCaseParser {
 
 		// 判決內容
 		String judgmentContent = JudgmentContent(unorganizedContent);
-//		System.out.println("判決內容:\n" + judgmentContent);
+		System.out.println("判決內容: 省略");
 
 		// 建立 LegalCaseParser 物件
 		LegalCaseParser parser = new LegalCaseParser();
@@ -389,14 +438,14 @@ public class LegalCaseParser {
 		// 呼叫 courtAndCharge，並接收回傳值
 		String[] courtAndCharge = parser.courtAndCharge();
 
-		System.out.println("群組案號: " + courtAndCharge[0]);
+		System.out.println("群組案號: " + courtAndCharge[1]); // 暫時與唯一案號相同
 		System.out.println("唯一案號: " + courtAndCharge[1]);
 		System.out.println("法院代號: " + courtAndCharge[2]);
 		System.out.println("案由: " + courtAndCharge[3]);
 
 		// 呼叫 verdictDate，並接收回傳值
 		try {
-			String verdictDate = parser.verdictDate();
+			LocalDate verdictDate = parser.verdictDate();
 			System.out.println("判決日期: " + verdictDate);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -406,13 +455,21 @@ public class LegalCaseParser {
 		String url = parser.httpTest();
 		System.out.println("生成的網址: " + url);
 
+		// 案件類型
+		String caseType = CaseType();
+		System.out.println("案件類型: " + caseType);
+
+		// 文件類型
+		String docType = DocType(fullText);
+		System.out.println("文件類型: " + docType);
+
 		// 提取法條
 		String lawPattern = "(洗錢防制法|毒品危害防制條例|陸海空軍刑法|煙害防制法|貪污治罪條例|山坡地保育利用條例|銀行法|刑法)第\\d+條(第\\d+項)?";
 		String extractedLaws = readJson2Test(lawPattern);
 		if (!extractedLaws.isEmpty()) {
-			System.out.println("找到的法條: " + extractedLaws);
+//			System.out.println("找到的法條: " + extractedLaws);
 		} else {
-			System.out.println("沒有找到任何法條。");
+//			System.out.println("沒有找到任何法條。");
 		}
 		// =========================================================
 		// 調用新方法來提取所有法條
