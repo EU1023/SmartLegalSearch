@@ -24,6 +24,7 @@ import SmartLegalSearch.entity.Case;
 import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.service.impl.CaseImpl;
 import SmartLegalSearch.vo.ReadJsonVo;
+
 @SpringBootApplication
 public class LegalCaseParser {
 	/*
@@ -436,7 +437,7 @@ public class LegalCaseParser {
 
 		// 判決內容
 		String judgmentContent = JudgmentContent(unorganizedContent);
-		System.out.println("判決內容: 省略");
+		System.out.println("判決內容: "+ judgmentContent);
 
 		// 建立 LegalCaseParser 物件
 		LegalCaseParser parser = new LegalCaseParser();
@@ -492,7 +493,7 @@ public class LegalCaseParser {
 		saveCase.setDate(verdictDate);
 		saveCase.setUrl(url);
 		saveCase.setCharge(courtAndCharge[3]);
-		saveCase.setText(judgmentContent);
+		saveCase.setText(data.getFull());
 		saveCase.setDefendantName(defendantName);
 		saveCase.setJudgeName(judgeName);
 		saveCase.setLaw(lawString);
@@ -504,7 +505,6 @@ public class LegalCaseParser {
 		CaseImpl caseImpl =context.getBean(CaseImpl.class);
 		
 		Case saveJudgment =caseImpl.saveJudgment(saveCase);
-		System.out.println(saveJudgment);
 	}
 
 }
