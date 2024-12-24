@@ -13,12 +13,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import SmartLegalSearch.dto.CaseInfo;
+import SmartLegalSearch.entity.Case;
 import SmartLegalSearch.readJson.ReadJson;
+import SmartLegalSearch.service.impl.CaseImpl;
 import SmartLegalSearch.vo.ReadJsonVo;
-
+@SpringBootApplication
 public class LegalCaseParser {
 	/*
 	 * group_id id court date text judge_name defendant_name url charge case_type
@@ -444,12 +450,8 @@ public class LegalCaseParser {
 		System.out.println("案由: " + courtAndCharge[3]);
 
 		// 呼叫 verdictDate，並接收回傳值
-		try {
-			LocalDate verdictDate = parser.verdictDate();
-			System.out.println("判決日期: " + verdictDate);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-		}
+		LocalDate verdictDate = parser.verdictDate();
+		System.out.println("判決日期: " + verdictDate);
 
 		// 呼叫 httpTest，並接收回傳值
 		String url = parser.httpTest();
@@ -481,6 +483,28 @@ public class LegalCaseParser {
 		// 將去重後的法條轉換為 JSON 格式字串
 		String lawString = uniqueLaws.stream().collect(Collectors.joining(";"));
 		System.out.println("找到的法條: " + lawString);
+		
+		// 設定實體存放變數容器
+		Case saveCase = new Case();
+		saveCase.setGroupId(courtAndCharge[1]);
+		saveCase.setId(courtAndCharge[1]);
+		saveCase.setCourt(courtAndCharge[2]);
+		saveCase.setDate(verdictDate);
+		saveCase.setUrl(url);
+		saveCase.setCharge(courtAndCharge[3]);
+		saveCase.setText(judgmentContent);
+		saveCase.setDefendantName(defendantName);
+		saveCase.setJudgeName(judgeName);
+		saveCase.setLaw(lawString);
+		saveCase.setCaseType(caseType);
+		saveCase.setDocType(docType);
+		
+		ApplicationContext context = SpringApplication.run(LegalCaseParser.class, args);
+		
+		CaseImpl caseImpl =context.getBean(CaseImpl.class);
+		
+		Case saveJudgment =caseImpl.saveJudgment(saveCase);
+		System.out.println(saveJudgment);
 	}
 
 }

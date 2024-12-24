@@ -28,8 +28,12 @@ dependencies {
 	implementation 'com.mysql:mysql-connector-j'
 	// 資料驗證
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	// JSON讀取
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
+	//Cache
+	implementation 'org.springframework.boot:spring-boot-starter-cache'
+	// Caffeine Cache
+	implementation 'com.github.ben-manes.caffeine:caffeine'
+	// open api
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 	
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

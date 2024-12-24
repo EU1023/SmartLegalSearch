@@ -113,4 +113,53 @@ public class Case { // 刑事案件
     public String getDocType() {
         return docType;
     }
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setCourt(String court) {
+		this.court = court;
+	}
+
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setCharge(String charge) {
+		this.charge = charge;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public void setDefendantName(String defendantName) {
+		this.defendantName = defendantName;
+	}
+
+	public void setJudgeName(String judgeName) {
+		this.judgeName = judgeName;
+	}
+
+	public void setLaw(String law) {
+		this.law = law;
+	}
+
+	public void setCaseType(String caseType) {
+		this.caseType = caseType;
+	}
+
+	public void setDocType(String docType) {
+		this.docType = docType;
+	}
+    
 }
