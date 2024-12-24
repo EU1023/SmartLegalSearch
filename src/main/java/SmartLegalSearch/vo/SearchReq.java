@@ -74,6 +74,42 @@ public class SearchReq {
 		return courtList;
 	}
 
+	public void setSearchName(String searchName) {
+		this.searchName = searchName;
+	}
+
+	public void setVerdictId(String verdictId) {
+		this.verdictId = verdictId;
+	}
+
+	public void setVerdictStartYear(LocalDate verdictStartYear) {
+		this.verdictStartYear = verdictStartYear;
+	}
+
+	public void setVerdictEndYear(LocalDate verdictEndYear) {
+		this.verdictEndYear = verdictEndYear;
+	}
+
+	public void setCharge(String charge) {
+		this.charge = charge;
+	}
+
+	public void setCaseType(String caseType) {
+		this.caseType = caseType;
+	}
+
+	public void setDocType(String docType) {
+		this.docType = docType;
+	}
+
+	public void setCourtList(List<String> courtList) {
+		this.courtList = courtList;
+	}
+
+	public void setLawList(List<String> lawList) {
+		this.lawList = lawList;
+	}
+
 	public List<String> getLawList() {
 		return lawList;
 	}

@@ -1,20 +1,18 @@
 package SmartLegalSearch.service.impl;
 
 import java.time.LocalDate;
-import java.util.List;
 
-import SmartLegalSearch.entity.LegalCase;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import SmartLegalSearch.constants.ResMessage;
+import SmartLegalSearch.entity.LegalCase;
 import SmartLegalSearch.repository.CaseDao;
 import SmartLegalSearch.service.ifs.CaseService;
 import SmartLegalSearch.vo.SearchReq;
 import SmartLegalSearch.vo.SearchRes;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CaseImpl implements CaseService {
@@ -62,17 +60,6 @@ public class CaseImpl implements CaseService {
 			charge = "";
 		}
 
-		// 法院
-		List<String> courtList = req.getCourtList();
-		if (CollectionUtils.isEmpty(courtList)) {
-			courtList = List.of("%");
-		}
-
-		// 法條
-		List<String> lawList = req.getLawList();
-		if (CollectionUtils.isEmpty(lawList)) {
-			lawList = List.of("%");
-		}
 
 		// 案件類型
 		String caseType = req.getCaseType();
@@ -89,7 +76,7 @@ public class CaseImpl implements CaseService {
 		return new SearchRes(ResMessage.SUCCESS.getCode(), //
 				ResMessage.SUCCESS.getMessage(), //
 				caseDao.searchByConditions(name, startDate, nedDate, id, //
-						charge, caseType, docType, courtList, lawList));
+						charge, caseType, docType, req.getCourtList(), req.getLawList()));
 	}
 
 	@Transactional
