@@ -3,6 +3,7 @@ package SmartLegalSearch.service.impl;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -89,6 +90,13 @@ public class CaseImpl implements CaseService {
 				ResMessage.SUCCESS.getMessage(), //
 				caseDao.searchByConditions(name, startDate, nedDate, id, //
 						charge, caseType, docType, courtList, lawList));
+	}
+
+	@Transactional
+	@Override
+	public Case saveJudgment(Case res) {
+		caseDao.save(res);
+		return null;
 	}
 
 }
