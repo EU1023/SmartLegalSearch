@@ -264,7 +264,7 @@ public class ReadJsonTests {
 		Pattern compiledJudgeName = Pattern.compile(judgeNamePattern);
 		Matcher judgeNameMatcher = compiledJudgeName.matcher(context);
 
-		while (judgeNameMatcher.find()) {
+		while (judgeNameMatcher.find()) {ㄔㄛˉ
 			judgeName.add(judgeNameMatcher.group(1).trim()
 					.replaceAll("[\\s\\u3000]+", ""));
 //            System.out.println("法官姓名: " + judgeNameMatcher.group(1));
