@@ -27,14 +27,16 @@ public class LegalCaseParser {
 	private static ReadJsonVo data = readJson
 			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,600,20240516,1.json");
 
-	 // 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
-	static String cleanText = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
-
+	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
+	static String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
+	// 未整理原文
+	static String unorganizedContent = data.getFull();
+	
 	public ArrayList<String> readJson1Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
 		Pattern lowPattern = Pattern.compile(pattern);
 		// 進行比對: .group可取出符合條件的字串段、.start或.end會回傳符合條件的開始位置或結束位置
-		Matcher matcher = lowPattern.matcher(cleanText);
+		Matcher matcher = lowPattern.matcher(cleanContent);
 		// 用於蒐集所有符合條件的字串段
 		ArrayList<String> lowList = new ArrayList<>();
 		// 用於紀錄符合條件的字串段最後一個位置index位置
@@ -54,68 +56,59 @@ public class LegalCaseParser {
 	}
 
 	// 案號、審理法院、案由
-	public void courtAndCharge() {
+	public String[] courtAndCharge() {
+		String[] result = new String[3]; // 用於存放案號、法院代號、案由
+
 		// 案號
 		String idPattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
 		String id = readJson1Test(idPattern).get(0);
-		System.out.println("案號: " + id);
+		result[0] = id;
 
 		// 審理法院
 		String court = data.getId().substring(0, 3);
-		System.out.println("法院代號: " + court);
+		result[1] = court;
 
 		// 案由
 		String charge = data.getTitle();
-		System.out.println("案由: " + charge);
+		result[2] = charge;
+
+		return result; // 回傳結果
 	}
 
 	// 判決日期(阿拉伯數字)
-	public void verdictDate() {
-		// 替換雙字節空格為單字節空格，並清理多餘空格
-		cleanText = cleanText.replaceAll("\\u3000", " ").replaceAll("\\s+", " ");
-		System.out.println("處理後文本: " + cleanText);
-
-		// 匹配判決日期的正則表達式，適應雙字節空格
-		String pattern = "中\\s*華\\s*民\\s*國\\s*([一二三四五六七八九十零百千\\d]{1,4})\\s*年\\s*([一二三四五六七八九十零\\d]{1,2})\\s*月\\s*([一二三四五六七八九十零\\d]{1,2})\\s*日";
-
+	public String verdictDate() {
 		// 匹配日期段落
+		String pattern = "中\\s*華\\s*民\\s*國\\s*([一二三四五六七八九十零百千\\d]{1,4})\\s*年\\s*([一二三四五六七八九十零\\d]{1,2})\\s*月\\s*([一二三四五六七八九十零\\d]{1,2})\\s*日";
 		ArrayList<String> dateStrList = readJson1Test(pattern);
-		System.out.println("匹配到的日期段落: " + dateStrList);
 
 		if (dateStrList.isEmpty()) {
-			System.out.println("未找到符合格式的判決日期！");
-			return;
+			throw new IllegalArgumentException("未找到符合格式的判決日期！");
 		}
 
 		try {
-			// 選擇第一個匹配到的日期段落
 			String firstDateStr = dateStrList.get(0).replaceAll("中\\s*華\\s*民\\s*國\\s*|\\s+", "");
-			System.out.println("處理後的日期段落: " + firstDateStr);
-
-			// 分割年份、月份、日期
 			String[] dateParts = firstDateStr.split("年|月|日");
-			// 中文數字轉換為阿拉伯數字
 			int year = convertChineseToArabic(dateParts[0]) + 1911;
 			int month = convertChineseToArabic(dateParts[1]);
 			int day = convertChineseToArabic(dateParts[2]);
 
+			// 範圍檢查
+			if (month < 1 || month > 12 || day < 1 || day > 31) {
+				throw new IllegalArgumentException("日期超出範圍: " + firstDateStr);
+			}
+
 			// 格式化日期
-			String formattedDate = String.format("%04d-%02d-%02d", year, month, day);
-			System.out.println("判決日期: " + formattedDate);
+			return String.format("%04d-%02d-%02d", year, month, day);
 		} catch (Exception e) {
-			System.out.println("解析判決日期時發生錯誤: " + e.getMessage());
+			throw new RuntimeException("解析判決日期時發生錯誤: " + e.getMessage());
 		}
 	}
 
-	// url
-	public void httpTest() {
+	// URL 生成
+	public String httpTest() {
 		// 假設 data.getId() 返回的 id 字串
 		String id = data.getId();
-		System.out.println("原始 ID: " + id);
-		// 使用生成網址的方法來創建網址
-		String url = generateUrl(id);
-		// 直接印出生成的網址
-		System.out.println(url);
+		return generateUrl(id);
 	}
 
 	// 生成網址的方法
@@ -124,45 +117,36 @@ public class LegalCaseParser {
 		String encodedId = id.replace(",", "%2c"); // 處理逗號
 		// encodedId = encodedId.replace("金訴", "%e9%87%91%e8%a8%b4"); //
 		// 處理中文（可以根據需求擴展編碼規則）
-
-		// 返回組合好的網址
 		return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
 	}
 
 //=====================================================================
 	// 中文數字轉數字
 	public static int convertChineseToArabic(String chineseNumber) {
-		int result = 0; // 最終的結果，存儲轉換後的數字
-		int temp = 0; // 用來累積每一部分的數字
-		// 處理「百」的部分，這一步先行
+		// 如果輸入是純數字，直接返回其整數值
+		if (chineseNumber.matches("\\d+")) {
+			return Integer.parseInt(chineseNumber);
+		}
+
+		int result = 0; // 最終的結果
+		int temp = 0; // 暫時累積的部分
+		// 處理「百」、「十」、「個位數」
 		if (chineseNumber.contains("百")) {
 			String[] parts = chineseNumber.split("百");
-			// 處理「百」前的部分
-			if (!parts[0].isEmpty()) {
-				temp = processDigits(parts[0]);
-			} else {
-				temp = 1; // 如果「百」前面沒有數字，則視為 1
-			}
-			result += temp * 100; // 給結果加上「百」後的部分
-			chineseNumber = parts.length > 1 ? parts[1] : ""; // 去掉已經處理過的「百」後面部分
+			temp = parts[0].isEmpty() ? 1 : processDigits(parts[0]);
+			result += temp * 100;
+			chineseNumber = parts.length > 1 ? parts[1] : "";
 		}
-		// 處理「十」的部分
 		if (chineseNumber.contains("十")) {
 			String[] parts = chineseNumber.split("十");
-			// 處理「十」前的部分
-			if (!parts[0].isEmpty()) {
-				temp = processDigits(parts[0]);
-			} else {
-				temp = 1; // 如果「十」前面沒有數字，則視為 1 十
-			}
-			result += temp * 10; // 給結果加上「十」後的部分
-			chineseNumber = parts.length > 1 ? parts[1] : ""; // 去掉已經處理過的「十」後面部分
+			temp = parts[0].isEmpty() ? 1 : processDigits(parts[0]);
+			result += temp * 10;
+			chineseNumber = parts.length > 1 ? parts[1] : "";
 		}
-		// 處理剩下的數字部分
 		if (!chineseNumber.isEmpty()) {
-			result += processDigits(chineseNumber); // 將剩下的部分轉換
+			result += processDigits(chineseNumber);
 		}
-		return result; // 返回轉換後的數字
+		return result;
 	}
 
 	// 處理剩餘的數字部分
@@ -204,7 +188,7 @@ public class LegalCaseParser {
 		// 使用正則匹配
 		// 清理空白字串，["正 文"]，以及將中文數字轉換成阿拉伯數字
 		// 清理空白字串並處理中文數字
-		String cleanText1 = convertTextChineseNumbers(cleanText.replaceAll("\\s+", ""));
+		String cleanText1 = convertTextChineseNumbers(cleanContent.replaceAll("\\s+", ""));
 		// 定義主文結束標記的正則表達式
 		Pattern endPattern = Pattern.compile("(事實及理由|事實|理由|)");
 		Matcher endMatcher = endPattern.matcher(cleanText1);
@@ -282,55 +266,16 @@ public class LegalCaseParser {
 
 	}
 
-	public static void main(String[] args) {
-		// 讀取 JSON 全文內容
-		String fullText = cleanText; // 直接使用處理後的全文變數
-
-//		System.out.println(fullText);
-		// 提取被告姓名
-		String defendantName = DefendantName(fullText);
-		System.out.println("被告姓名: " + defendantName);
-
-		// 提取法官姓名
-		String judgeName = JudgesName(fullText);
-		System.out.println("法官姓名: " + judgeName);
-
-		// 提取判決內容
-		String judgmentContent = JudgmentContent(fullText);
-		System.out.println("判決內容:\n" + judgmentContent);
-
-		// 建立 LegalCaseParser 物件
-		LegalCaseParser parser = new LegalCaseParser();
-		parser.courtAndCharge();
-
-		parser.verdictDate();
-
-		parser.httpTest();
-
-		// 定義法律條文的正則表達式，這個正則表達式會匹配各種法條
-		String lawPattern = "(洗錢防制法|毒品危害防制條例|陸海空軍刑法|煙害防制法|貪污治罪條例|山坡地保育利用條例|銀行法|刑法)第\\d+條(第\\d+項)?";
-		// 提取法條
-		String extractedLaws = readJson2Test(lawPattern);
-//		System.out.println(extractedLaws);
-		// 輸出結果
-		if (!extractedLaws.isEmpty()) {
-			System.out.println("找到的法條: " + extractedLaws); // 列出所有法條
-//					System.out.println("第 1 個法條: " + extractedLaws.get(0)); // 取第一個法條
-		} else {
-			System.out.println("沒有找到任何法條。");
-		}
-	}
-
 	// 被告姓名
 	private static String DefendantName(String fullText) {
 		// 匹配 "被告" 後的 2~4 個中文字符
-	    Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF]{2,3})");
-	    Matcher matcher = pattern.matcher(fullText);
-	    if (matcher.find()) {
-	        // 提取純粹的姓名
-	        return matcher.group(1).trim();
-	    }
-	    return "未知";
+		Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF]{2,3})");
+		Matcher matcher = pattern.matcher(fullText);
+		if (matcher.find()) {
+			// 提取純粹的姓名
+			return matcher.group(1).trim();
+		}
+		return "未知";
 	}
 
 	// 法官姓名
@@ -354,7 +299,7 @@ public class LegalCaseParser {
 	// 判決內容
 	private static String JudgmentContent(String fullText) {
 		// 起始標記：主文
-		String startMarker = "主文";
+		String startMarker = "主    文";
 		// 結束標記：論罪科刑
 		String endMarker = "據上論斷";
 
@@ -366,6 +311,56 @@ public class LegalCaseParser {
 			return fullText.substring(startIndex, endIndex + endMarker.length()).trim();
 		}
 		return "未找到完整的判決內容區域";
+	}
+
+//====================================================================
+
+	// 執行方法
+	public static void main(String[] args) {
+		// 處理後的全文變數
+		String fullText = cleanContent;
+
+		// 被告姓名
+		String defendantName = DefendantName(fullText);
+		System.out.println("被告姓名: " + defendantName);
+
+		// 法官姓名
+		String judgeName = JudgesName(fullText);
+		System.out.println("法官姓名: " + judgeName);
+
+		// 判決內容
+		String judgmentContent = JudgmentContent(unorganizedContent);
+		System.out.println("判決內容:\n" + judgmentContent);
+
+		// 建立 LegalCaseParser 物件
+		LegalCaseParser parser = new LegalCaseParser();
+
+		// 呼叫 courtAndCharge，並接收回傳值
+		String[] courtAndCharge = parser.courtAndCharge();
+		System.out.println("案號: " + courtAndCharge[0]);
+		System.out.println("法院代號: " + courtAndCharge[1]);
+		System.out.println("案由: " + courtAndCharge[2]);
+
+		// 呼叫 verdictDate，並接收回傳值
+		try {
+			String verdictDate = parser.verdictDate();
+			System.out.println("判決日期: " + verdictDate);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+
+		// 呼叫 httpTest，並接收回傳值
+		String url = parser.httpTest();
+		System.out.println("生成的網址: " + url);
+
+		// 提取法條
+		String lawPattern = "(洗錢防制法|毒品危害防制條例|陸海空軍刑法|煙害防制法|貪污治罪條例|山坡地保育利用條例|銀行法|刑法)第\\d+條(第\\d+項)?";
+		String extractedLaws = readJson2Test(lawPattern);
+		if (!extractedLaws.isEmpty()) {
+			System.out.println("找到的法條: " + extractedLaws);
+		} else {
+			System.out.println("沒有找到任何法條。");
+		}
 	}
 
 }

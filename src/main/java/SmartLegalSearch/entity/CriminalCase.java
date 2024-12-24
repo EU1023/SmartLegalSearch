@@ -8,7 +8,14 @@ import java.time.LocalDate;
 @Table(name = "criminal_case")
 @IdClass(CriminalCaseId.class)
 public class CriminalCase { // 刑事案件
-
+     
+	
+	
+//	text
+//	judge_name
+//	defendant_name
+//	url
+//	charge
     @Id
     @Column(name = "group_id")
     private String groupId; // 案件群組識別碼
