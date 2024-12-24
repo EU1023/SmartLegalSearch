@@ -30,7 +30,7 @@ public class ReadJsonTest {
 	// 附錄本案論罪科刑法條刑法第320條
 //	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,易,393,20240516,1.json");
 	// 附表3:洗錢防制法第十四條
-	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,600,20240516,1.json");
+	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,562,20240516,1.json");
 
 	// 取得判決主文
 //	private String text = new String(data.getFull());

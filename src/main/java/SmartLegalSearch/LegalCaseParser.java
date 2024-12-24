@@ -5,9 +5,13 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,13 +29,13 @@ public class LegalCaseParser {
 	private static ReadJson readJson = new ReadJson();
 	// 設置 JSON 文件的路徑
 	private static ReadJsonVo data = readJson
-			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,600,20240516,1.json");
+			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,562,20240516,1.json");
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 	static String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
 	// 未整理原文
 	static String unorganizedContent = data.getFull();
-	
+
 	public ArrayList<String> readJson1Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
 		Pattern lowPattern = Pattern.compile(pattern);
@@ -55,22 +59,50 @@ public class LegalCaseParser {
 		return lowList;
 	}
 
-	// 案號、審理法院、案由
+	// 群組案號、唯一案號、審理法院、案由
 	public String[] courtAndCharge() {
-		String[] result = new String[3]; // 用於存放案號、法院代號、案由
+		String[] result = new String[4]; // 用於存放案號、法院代號、案由
 
-		// 案號
+		// 群組案號
 		String idPattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
-		String id = readJson1Test(idPattern).get(0);
-		result[0] = id;
+		String group_id = readJson1Test(idPattern).get(0);
+		result[0] = group_id;
+		// ==========================================
+		// 唯一案號的處理
+		String jid = data.getId(); // 假設 data.getJID() 返回 JSON 中的 "JID" 欄位
+		if (jid != null && !jid.isEmpty()) {
+			// 定義更靈活的正則模式，匹配案件類型和日期時間編號
+			String uniqueIdPattern = "([一-龥\\w]+),\\s*(\\d+),\\s*(\\d{8}),\\s*(\\d+)$";
+			Matcher matcher = Pattern.compile(uniqueIdPattern).matcher(jid);
+			if (matcher.find()) {
+				String caseType = matcher.group(1); // 案件類型（例如 金訴 或 訴 等）
+				String uniqueId = matcher.group(2); // 唯一案號編號
+				String date = matcher.group(3); // 日期（例如 20240516）
+				String finalNumber = matcher.group(4); // 最後的數字編號（例如 1 或 2）
 
+				// 在文中組合查找對應的唯一案號
+				String specificCasePattern = "([一二三四五六七八九十]|\\d){2,4}年度" + caseType + "字第" + uniqueId + "號";
+				List<String> matchedCases = readJson1Test(specificCasePattern);
+				if (!matchedCases.isEmpty()) {
+					result[1] = matchedCases.get(0); // 取匹配到的第一個案號
+				} else {
+					result[1] = "未找到符合的唯一案號";
+				}
+			} else {
+				result[1] = "未能從 JID 提取唯一案號相關資訊";
+			}
+		} else {
+			result[1] = "JID 欄位為空";
+		}
+
+		// ==========================================
 		// 審理法院
 		String court = data.getId().substring(0, 3);
-		result[1] = court;
+		result[2] = court;
 
 		// 案由
 		String charge = data.getTitle();
-		result[2] = charge;
+		result[3] = charge;
 
 		return result; // 回傳結果
 	}
@@ -181,7 +213,7 @@ public class LegalCaseParser {
 		return result.toString();
 	}
 
-	// 提取正文
+	// 提取第一個法條
 	public static String readJson2Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
 		Pattern lowPattern = Pattern.compile(pattern);
@@ -266,6 +298,25 @@ public class LegalCaseParser {
 
 	}
 
+	// 提取全文中所有法條的方法
+	public static List<String> extractAllLaws(String fullText, String pattern) {
+		List<String> laws = new ArrayList<>(); // 用於存放匹配到的法條
+
+		// 清理空白字元並處理中文數字
+		String cleanText = convertTextChineseNumbers(fullText.replaceAll("\\s+", ""));
+
+		// 定義正則模式並匹配全文
+		Pattern lawPattern = Pattern.compile(pattern);
+		Matcher matcher = lawPattern.matcher(cleanText);
+
+		// 匹配所有符合的法條並存入列表
+		while (matcher.find()) {
+			laws.add(matcher.group());
+		}
+
+		return laws; // 返回所有匹配到的法條
+	}
+
 	// 被告姓名
 	private static String DefendantName(String fullText) {
 		// 匹配 "被告" 後的 2~4 個中文字符
@@ -296,7 +347,7 @@ public class LegalCaseParser {
 		return "未知";
 	}
 
-	// 判決內容
+	// 內容
 	private static String JudgmentContent(String fullText) {
 		// 起始標記：主文
 		String startMarker = "主    文";
@@ -330,16 +381,18 @@ public class LegalCaseParser {
 
 		// 判決內容
 		String judgmentContent = JudgmentContent(unorganizedContent);
-		System.out.println("判決內容:\n" + judgmentContent);
+//		System.out.println("判決內容:\n" + judgmentContent);
 
 		// 建立 LegalCaseParser 物件
 		LegalCaseParser parser = new LegalCaseParser();
 
 		// 呼叫 courtAndCharge，並接收回傳值
 		String[] courtAndCharge = parser.courtAndCharge();
-		System.out.println("案號: " + courtAndCharge[0]);
-		System.out.println("法院代號: " + courtAndCharge[1]);
-		System.out.println("案由: " + courtAndCharge[2]);
+
+		System.out.println("群組案號: " + courtAndCharge[0]);
+		System.out.println("唯一案號: " + courtAndCharge[1]);
+		System.out.println("法院代號: " + courtAndCharge[2]);
+		System.out.println("案由: " + courtAndCharge[3]);
 
 		// 呼叫 verdictDate，並接收回傳值
 		try {
@@ -361,6 +414,16 @@ public class LegalCaseParser {
 		} else {
 			System.out.println("沒有找到任何法條。");
 		}
+		// =========================================================
+		// 調用新方法來提取所有法條
+		List<String> laws = extractAllLaws(fullText, lawPattern);
+
+		// 使用 Set 去重，並保持插入順序
+		Set<String> uniqueLaws = new LinkedHashSet<>(laws);
+
+		// 將去重後的法條轉換為 JSON 格式字串
+		String lawString = uniqueLaws.stream().collect(Collectors.joining(";"));
+		System.out.println("找到的法條: " + lawString);
 	}
 
 }

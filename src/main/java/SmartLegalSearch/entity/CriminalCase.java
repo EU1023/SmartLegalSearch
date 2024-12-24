@@ -8,14 +8,7 @@ import java.time.LocalDate;
 @Table(name = "criminal_case")
 @IdClass(CriminalCaseId.class)
 public class CriminalCase { // 刑事案件
-     
-	
-	
-//	text
-//	judge_name
-//	defendant_name
-//	url
-//	charge
+
     @Id
     @Column(name = "group_id")
     private String groupId; // 案件群組識別碼
@@ -28,14 +21,8 @@ public class CriminalCase { // 刑事案件
     @Column(name = "court")
     private String court; // 審理法院
 
-    @Column(name = "verdict_date")
-    private LocalDate verdictDate; // 判決日期
-
-    @Column(name = "law")
-    private String law; // 相關法條
-
-    @Column(name = "law_detail")
-    private String lawDetail; // 法條細節
+    @Column(name = "date")
+    private LocalDate date; // 判決日期
 
     @Column(name = "url")
     private String url; // 判決書連結
@@ -43,26 +30,29 @@ public class CriminalCase { // 刑事案件
     @Column(name = "charge")
     private String charge; // 案由
 
-    @Column(name = "facts")
-    private String facts; // 事實描述
+    @Column(name = "text")
+    private String text; // 判決內容
 
-    @Column(name = "motive")
-    private String motive; // 動機/理由描述
+    @Column(name = "defendant_name")
+    private String defendantName; // 被告姓名
+
+    @Column(name = "judge_name")
+    private String judgeName; // 法官姓名
+
 
     public CriminalCase() {
     }
 
-    public CriminalCase(String groupId, String id, String court, LocalDate verdictDate, String law, String lawDetail, String url, String charge, String facts, String motive) {
+    public CriminalCase(String groupId, String id, String court, LocalDate date, String url, String charge, String text, String defendantName, String judgeName) {
         this.groupId = groupId;
         this.id = id;
         this.court = court;
-        this.verdictDate = verdictDate;
-        this.law = law;
-        this.lawDetail = lawDetail;
+        this.date = date;
         this.url = url;
         this.charge = charge;
-        this.facts = facts;
-        this.motive = motive;
+        this.text = text;
+        this.defendantName = defendantName;
+        this.judgeName = judgeName;
     }
 
     public String getGroupId() {
@@ -77,16 +67,8 @@ public class CriminalCase { // 刑事案件
         return court;
     }
 
-    public LocalDate getVerdictDate() {
-        return verdictDate;
-    }
-
-    public String getLaw() {
-        return law;
-    }
-
-    public String getLawDetail() {
-        return lawDetail;
+    public LocalDate getDate() {
+        return date;
     }
 
     public String getUrl() {
@@ -97,11 +79,15 @@ public class CriminalCase { // 刑事案件
         return charge;
     }
 
-    public String getFacts() {
-        return facts;
+    public String getText() {
+        return text;
     }
 
-    public String getMotive() {
-        return motive;
+    public String getDefendantName() {
+        return defendantName;
+    }
+
+    public String getJudgeName() {
+        return judgeName;
     }
 }
