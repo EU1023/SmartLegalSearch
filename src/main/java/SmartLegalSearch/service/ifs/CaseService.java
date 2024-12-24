@@ -1,10 +1,11 @@
 package SmartLegalSearch.service.ifs;
 
-import SmartLegalSearch.entity.Case;
+import SmartLegalSearch.vo.SearchReq;
+import SmartLegalSearch.vo.SearchRes;
 
 public interface CaseService {
-    void searchCriminalCase();
-    
-    public Case saveJudgment(Case res);
+
+	// 搜尋功能
+    public SearchRes searchCriminalCase(SearchReq req);
 
 }

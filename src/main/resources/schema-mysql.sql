@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS `case` (
   `case_type` varchar(25) DEFAULT NULL,
   `doc_type` varchar(25) DEFAULT NULL,
   PRIMARY KEY (`group_id`,`id`,`court`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+);
+
 
