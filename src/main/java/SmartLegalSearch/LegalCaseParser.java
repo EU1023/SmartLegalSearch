@@ -20,7 +20,7 @@ import org.springframework.context.ApplicationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import SmartLegalSearch.dto.CaseInfo;
-import SmartLegalSearch.entity.Case;
+import SmartLegalSearch.entity.LegalCase;
 import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.service.impl.CaseImpl;
 import SmartLegalSearch.vo.ReadJsonVo;
@@ -37,7 +37,7 @@ public class LegalCaseParser {
 	private static ReadJson readJson = new ReadJson();
 	// 設置 JSON 文件的路徑
 	private static ReadJsonVo data = readJson
-			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,562,20240516,1.json");
+			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,訴,377,20240517,1.json");
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 	static String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
@@ -486,7 +486,7 @@ public class LegalCaseParser {
 		System.out.println("找到的法條: " + lawString);
 
 		// 設定實體存放變數容器
-		Case saveCase = new Case();
+		LegalCase saveCase = new LegalCase();
 		saveCase.setGroupId(courtAndCharge[1]);
 		saveCase.setId(courtAndCharge[1]);
 		saveCase.setCourt(courtAndCharge[2]);
@@ -504,7 +504,7 @@ public class LegalCaseParser {
 
 		CaseImpl caseImpl =context.getBean(CaseImpl.class);
 
-		Case saveJudgment =caseImpl.saveJudgment(saveCase);
+		LegalCase saveJudgment =caseImpl.saveJudgment(saveCase);
 	}
 
 }

@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `case` (
+CREATE TABLE IF NOT EXISTS `legal_case` (
   `group_id` varchar(100) NOT NULL,
   `id` varchar(100) NOT NULL,
   `court` varchar(25) NOT NULL,
