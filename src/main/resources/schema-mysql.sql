@@ -8,5 +8,6 @@ CREATE TABLE IF NOT EXIST `criminal_case` (
   `judge_name` varchar(50) DEFAULT NULL,
   `defendant_name` varchar(50) DEFAULT NULL,
   `text` text,
+  `law` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`group_id`,`id`,`court`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

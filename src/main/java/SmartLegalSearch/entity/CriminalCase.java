@@ -39,11 +39,14 @@ public class CriminalCase { // 刑事案件
     @Column(name = "judge_name")
     private String judgeName; // 法官姓名
 
+    @Column(name = "law")
+    private String law;
+
 
     public CriminalCase() {
     }
 
-    public CriminalCase(String groupId, String id, String court, LocalDate date, String url, String charge, String text, String defendantName, String judgeName) {
+    public CriminalCase(String groupId, String id, String court, LocalDate date, String url, String charge, String text, String defendantName, String judgeName, String law) {
         this.groupId = groupId;
         this.id = id;
         this.court = court;
@@ -53,6 +56,7 @@ public class CriminalCase { // 刑事案件
         this.text = text;
         this.defendantName = defendantName;
         this.judgeName = judgeName;
+        this.law = law;
     }
 
     public String getGroupId() {
@@ -89,5 +93,9 @@ public class CriminalCase { // 刑事案件
 
     public String getJudgeName() {
         return judgeName;
+    }
+
+    public String getLaw() {
+        return law;
     }
 }
