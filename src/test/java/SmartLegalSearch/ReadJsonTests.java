@@ -20,8 +20,8 @@ public class ReadJsonTests {
 	private ReadJson readJson = new ReadJson();
 
 	// 檔案路徑
-//    private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,金訴,625,20240523,1.json");
-	private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,原金訴,26,20240503,5.json");
+    private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,金訴,625,20240523,1.json");
+//	private ReadJsonVo data = readJson.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,原金訴,26,20240503,5.json");
 
 	// 取得判決主文
 // private String text = new String(data.getFull());

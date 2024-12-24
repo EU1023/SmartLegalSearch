@@ -4,7 +4,7 @@ package SmartLegalSearch.entity;
 import java.io.Serial;
 import java.io.Serializable;
 
-public class CriminalCaseId implements Serializable {
+public class CaseId implements Serializable {
 
     @Serial
     private static final long serialVersionUID = -7790140973026611129L;
@@ -15,12 +15,24 @@ public class CriminalCaseId implements Serializable {
 
     private String court;
 
-    public CriminalCaseId() {
+    public CaseId() {
     }
 
-    public CriminalCaseId(String groupId, String id, String court) {
+    public CaseId(String groupId, String id, String court) {
         this.groupId = groupId;
         this.id = id;
         this.court = court;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getCourt() {
+        return court;
     }
 }
