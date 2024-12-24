@@ -9,7 +9,6 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import SmartLegalSearch.constants.ResMessage;
-import SmartLegalSearch.entity.Case;
 import SmartLegalSearch.repository.CaseDao;
 import SmartLegalSearch.service.ifs.CaseService;
 import SmartLegalSearch.vo.SearchReq;
