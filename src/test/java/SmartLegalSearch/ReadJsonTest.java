@@ -30,14 +30,14 @@ public class ReadJsonTest {
 	// 附錄本案論罪科刑法條刑法第320條
 //	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,易,393,20240516,1.json");
 	// 附表3:洗錢防制法第十四條
-	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\KLDM,112,金訴,600,20240516,1.json");
+	private ReadJsonVo data = readJson.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,600,20240516,1.json");
 
 	// 取得判決主文
 //	private String text = new String(data.getFull());
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 //	private String cleanText = data.getFull().replaceAll("\n|\r|　| ", " ");
-	String cleanText = data.getFull().replaceAll("[\\r|\\n|\\s]+", " ");
+	String cleanText = data.getFull().replaceAll("[\\r|\\n|\\s]+", "");
 //	String cleanText = data.getFull().replaceAll("[\\r\\n]+", " "); 
 //	String cleanText = data.getFull().replaceAll("[\\r\\n]+", " ").replaceAll("\\s{2,}", " "); // 替換多餘的空白符
 
@@ -161,41 +161,41 @@ public class ReadJsonTest {
 		Matcher tableMatcher = tablePattern.matcher(cleanText1);
 		int tableStartIndex = -1;
 		if (tableMatcher.find()) {
-		    tableStartIndex = tableMatcher.start();
+			tableStartIndex = tableMatcher.start();
 		}
 		// 如果找到了附表一
 		if (tableStartIndex != -1) {
-		    // 嘗試找到附表三的起始位置
-		    int tableThreeStartIndex = cleanText1.indexOf("附表三", tableStartIndex);
-		    if (tableThreeStartIndex == -1) {
-		        return "未找到任何法條";
-		    }
-		    // 找到附表三的結尾範圍
-		    int tableEndIndex = cleanText1.indexOf("附表四", tableThreeStartIndex);
-		    if (tableEndIndex == -1) {
-		        tableEndIndex = cleanText1.length(); // 如果沒有附表四，取全文結尾
-		    }
-		    // 確保範圍有效
-		    if (tableEndIndex > tableThreeStartIndex) {
-		        // 提取附表三到結尾的文本
-		        String tableText = cleanText1.substring(tableThreeStartIndex, tableEndIndex).trim();
-		        System.out.println("附表三範圍內容: " + tableText);
-		        // 匹配犯罪事實部分
-		        Pattern crimeFactPattern = Pattern.compile("犯罪事實.*?(附表四|$)", Pattern.DOTALL);
-		        Matcher crimeFactMatcher = crimeFactPattern.matcher(tableText);
-		        if (crimeFactMatcher.find()) {
-		            String crimeFacts = crimeFactMatcher.group();
+			// 嘗試找到附表三的起始位置
+			int tableThreeStartIndex = cleanText1.indexOf("附表三", tableStartIndex);
+			if (tableThreeStartIndex == -1) {
+				return "未找到任何法條";
+			}
+			// 找到附表三的結尾範圍
+			int tableEndIndex = cleanText1.indexOf("附表四", tableThreeStartIndex);
+			if (tableEndIndex == -1) {
+				tableEndIndex = cleanText1.length(); // 如果沒有附表四，取全文結尾
+			}
+			// 確保範圍有效
+			if (tableEndIndex > tableThreeStartIndex) {
+				// 提取附表三到結尾的文本
+				String tableText = cleanText1.substring(tableThreeStartIndex, tableEndIndex).trim();
+				System.out.println("附表三範圍內容: " + tableText);
+				// 匹配犯罪事實部分
+				Pattern crimeFactPattern = Pattern.compile("犯罪事實.*?(附表四|$)", Pattern.DOTALL);
+				Matcher crimeFactMatcher = crimeFactPattern.matcher(tableText);
+				if (crimeFactMatcher.find()) {
+					String crimeFacts = crimeFactMatcher.group();
 //		            System.out.println("犯罪事實內容: " + crimeFacts);
-		            // 在犯罪事實段落中提取法條
-		            Matcher matcher = lowPattern.matcher(crimeFacts);
-		            boolean found = false;
-		            while (matcher.find()) {
-		                System.out.println("犯罪事實匹配到的法條: " + matcher.group());
-		                found = true;
-		                return matcher.group(); // 返回找到的第一個法條
-		            }
-		        } 
-		    }
+					// 在犯罪事實段落中提取法條
+					Matcher matcher = lowPattern.matcher(crimeFacts);
+					boolean found = false;
+					while (matcher.find()) {
+						System.out.println("犯罪事實匹配到的法條: " + matcher.group());
+						found = true;
+						return matcher.group(); // 返回找到的第一個法條
+					}
+				}
+			}
 		}
 		// 如果所有段落中均未找到法條，返回提示
 		return "未找到任何法條";
