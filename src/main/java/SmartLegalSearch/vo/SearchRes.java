@@ -2,11 +2,11 @@ package SmartLegalSearch.vo;
 
 import java.util.List;
 
-import SmartLegalSearch.entity.Case;
+import SmartLegalSearch.entity.LegalCase;
 
 public class SearchRes extends BasicRes {
 
-	private List<Case> CaseList;
+	private List<LegalCase> CaseList;
 
 	public SearchRes() {
 		super();
@@ -16,12 +16,12 @@ public class SearchRes extends BasicRes {
 		super(code, message);
 	}
 
-	public SearchRes(int code, String message, List<Case> caseList) {
+	public SearchRes(int code, String message, List<LegalCase> caseList) {
 		super(code, message);
 		CaseList = caseList;
 	}
 
-	public List<Case> getCaseList() {
+	public List<LegalCase> getCaseList() {
 		return CaseList;
 	}
 

@@ -3,7 +3,7 @@ package SmartLegalSearch.service.impl;
 import java.time.LocalDate;
 import java.util.List;
 
-import SmartLegalSearch.entity.Case;
+import SmartLegalSearch.entity.LegalCase;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -94,7 +94,7 @@ public class CaseImpl implements CaseService {
 
 	@Transactional
 	@Override
-	public Case saveJudgment(Case res) {
+	public LegalCase saveJudgment(LegalCase res) {
 		caseDao.save(res);
 		return null;
 	}

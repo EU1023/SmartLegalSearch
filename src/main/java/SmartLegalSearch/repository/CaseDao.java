@@ -8,16 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import SmartLegalSearch.entity.Case;
+import SmartLegalSearch.entity.LegalCase;
 import SmartLegalSearch.entity.CaseId;
 
 @Repository
-public interface CaseDao extends JpaRepository<Case, CaseId> {
+public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 
 	// 搜尋
 	@Query(value = "select group_id, id, court, date, url, charge, judge_name, " //
 			+ " defendant_name, text, law, case_type, doc_type " //
-			+ " from criminal_case" //
+			+ " from legal_case" //
 			+ " where text like '%:name%' " //
 			+ " and date >= :startDate " //
 			+ " and date <= :endDate " //
@@ -27,7 +27,7 @@ public interface CaseDao extends JpaRepository<Case, CaseId> {
 			+ " and doc_type like '%:docType%' " //
 			+ " and court in (:courtList) " //
 			+ " and law in (:lawList)", nativeQuery = true) //
-	public List<Case> searchByConditions( //
+	public List<LegalCase> searchByConditions( //
 			@Param("name") String name, //
 			@Param("startDate") LocalDate startDate, //
 			@Param("endDate") LocalDate endDate, //
