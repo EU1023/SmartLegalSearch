@@ -26,7 +26,7 @@ import SmartLegalSearch.vo.ReadJsonVo;
 
 @SpringBootTest
 public class ReadJsonTest {
-	
+
 	@Autowired
 	private CaseDao caseDao;
 	/*
@@ -43,8 +43,8 @@ public class ReadJsonTest {
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 	static String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
-	// 未整理原文
-	static String unorganizedContent = data.getFull();
+	// 未整理空白字串原文
+	static String unorganizedContent = data.getFull().replaceAll("[\\r|\\n|\\s|'']+", "");
 
 	public ArrayList<String> readJson1Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
@@ -164,7 +164,7 @@ public class ReadJsonTest {
 
 //=====================================================================
 	// 中文數字轉數字
-	public static int convertChineseToArabic(String chineseNumber) {
+	public int convertChineseToArabic(String chineseNumber) {
 		// 如果輸入是純數字，直接返回其整數值
 		if (chineseNumber.matches("\\d+")) {
 			return Integer.parseInt(chineseNumber);
@@ -192,7 +192,7 @@ public class ReadJsonTest {
 	}
 
 	// 處理剩餘的數字部分
-	private static int processDigits(String digits) {
+	private int processDigits(String digits) {
 		int value = 0;
 		// 中文數字轉換映射
 		Map<String, Integer> number = Map.of("一", 1, "二", 2, "三", 3, "四", 4, "五", 5, "六", 6, "七", 7, "八", 8, "九", 9);
@@ -206,7 +206,7 @@ public class ReadJsonTest {
 	}
 
 	// 方法：將文件內文中的中文數字轉換為阿拉伯數字
-	public static String convertTextChineseNumbers(String text) {
+	public String convertTextChineseNumbers(String text) {
 		// 匹配中文數字的正則表達式（針對 "第十四條" 和 "第十四項" 等格式）
 		Pattern pattern = Pattern.compile("第([一二三四五六七八九十百零]+)(條|項)");
 		Matcher matcher = pattern.matcher(text);
@@ -224,7 +224,7 @@ public class ReadJsonTest {
 	}
 
 	// 提取第一個法條
-	public static String readJson2Test(String pattern) {
+	public String readJson2Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
 		Pattern lowPattern = Pattern.compile(pattern);
 		// 使用正則匹配
@@ -309,7 +309,7 @@ public class ReadJsonTest {
 	}
 
 	// 提取全文中所有法條的方法
-	public static List<String> extractAllLaws(String fullText, String pattern) {
+	public List<String> extractAllLaws(String fullText, String pattern) {
 		List<String> laws = new ArrayList<>(); // 用於存放匹配到的法條
 
 		// 清理空白字元並處理中文數字
@@ -330,7 +330,7 @@ public class ReadJsonTest {
 //==============================================================================
 
 	// 被告姓名
-	private static String DefendantName(String fullText) {
+	private String DefendantName(String fullText) {
 		// 匹配 "被告" 後的 2~4 個中文字符
 		Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF]{2,3})");
 		Matcher matcher = pattern.matcher(fullText);
@@ -342,25 +342,28 @@ public class ReadJsonTest {
 	}
 
 	// 法官姓名
-	private static String JudgesName(String fullText) {
-		// 找到標記「以上正本證明與原本無異」
-		String marker = "以上正本證明與原本無異。";
-		int markerIndex = fullText.indexOf(marker);
-		if (markerIndex != -1) {
-			// 提取標記前的一段文字
-			String precedingText = fullText.substring(0, markerIndex);
-			// 匹配 "法官" 後的姓名
-			Pattern pattern = Pattern.compile("法\\s*官\\s*([\\u4E00-\\u9FFF]{2,4})");
-			Matcher matcher = pattern.matcher(precedingText);
-			if (matcher.find()) {
-				return matcher.group(1).trim(); // 僅返回法官姓名
-			}
+	private String JudgesName(String fullText) {
+		// 定義正則表達式以匹配「法 官」後的姓名
+		// 假設姓名是2-4個中文字，並且停止於段行符號或跳脫符號
+		// 標準化空格（將全形空格替換為半形空格，並壓縮多餘空白）
+		fullText = fullText.replaceAll("\\s+", " ").replaceAll("　", " ");
+
+		// 定義正則表達式：匹配「法 官」後緊接的姓名，並在段行符號或標點符號前停止
+		Pattern pattern = Pattern.compile("法\\s*官\\s*([\\u4E00-\\u9FFF]{2,4})(?=\\s*[\\n\\r。，；、\\s])");
+
+		// 搜索匹配
+		Matcher matcher = pattern.matcher(fullText);
+		// 如果找到匹配
+		if (matcher.find()) {
+			// 提取法官姓名 (第一組匹配)
+			return matcher.group(1).trim();
 		}
+		// 如果未找到，返回未知
 		return "未知";
 	}
 
 	// 內容
-	private static String JudgmentContent(String fullText) {
+	private String JudgmentContent(String fullText) {
 		// 起始標記：主文
 		String startMarker = "主    文";
 		// 結束標記：論罪科刑
@@ -377,7 +380,7 @@ public class ReadJsonTest {
 	}
 
 	// 案件類型，如刑事(M)、民事(V)、行政(A)
-	private static String CaseType() {
+	private String CaseType() {
 		String jid = data.getId();
 		if (!jid.isEmpty() & jid != null) {
 			String uniqueIdPattern = "^([一-龥\\w]*([MVAPC]))";
@@ -406,19 +409,19 @@ public class ReadJsonTest {
 	}
 
 	// 文件類型，裁定或判決或釋字等
-	private static String DocType(String fullText) {
+	private String DocType(String fullText) {
 
 		// 正規表示式：匹配包含法院名稱和「判決」、「裁定」、「釋字」的段落
-	    String patternStr = "(\\S*法院\\S*)\\s*(刑事|民事|行政)?\\s*(判決|裁定|釋字)";
-	    Pattern pattern = Pattern.compile(patternStr);
-	    Matcher matcher = pattern.matcher(fullText);
-	    // 檢查是否找到匹配
-	    if (matcher.find()) {
-	    	// 找到標記「判決、裁定、釋字」
-	        String docType = matcher.group(3); // 判決/裁定/釋字
-	        // 拼接結果並返回
-	        return docType;
-	    }
+		String patternStr = "(\\S*法院\\S*)\\s*(刑事|民事|行政)?\\s*(判決|裁定|釋字)";
+		Pattern pattern = Pattern.compile(patternStr);
+		Matcher matcher = pattern.matcher(fullText);
+		// 檢查是否找到匹配
+		if (matcher.find()) {
+			// 找到標記「判決、裁定、釋字」
+			String docType = matcher.group(3); // 判決/裁定/釋字
+			// 拼接結果並返回
+			return docType;
+		}
 		return "未知";
 	}
 
@@ -435,18 +438,18 @@ public class ReadJsonTest {
 //		System.out.println("被告姓名: " + defendantName);
 
 		// 法官姓名
-		String judgeName = JudgesName(fullText);
+		String judgeName = JudgesName(data.getFull());
 //		System.out.println("法官姓名: " + judgeName);
 
 		// 判決內容
-		String judgmentContent = JudgmentContent(unorganizedContent);
+		String judgmentContent = JudgmentContent(data.getFull());
 //		System.out.println("判決內容: "+ judgmentContent);
 
 		// 建立 LegalCaseParser 物件
 		LegalCaseParser parser = new LegalCaseParser();
 
 		// 呼叫 courtAndCharge，並接收回傳值
-		String[] courtAndCharge = parser.courtAndCharge();
+		String[] courtAndCharge = courtAndCharge();
 
 //		System.out.println("群組案號: " + courtAndCharge[1]); // 暫時與唯一案號相同
 //		System.out.println("唯一案號: " + courtAndCharge[1]);
@@ -454,11 +457,11 @@ public class ReadJsonTest {
 //		System.out.println("案由: " + courtAndCharge[3]);
 
 		// 呼叫 verdictDate，並接收回傳值
-		LocalDate verdictDate = parser.verdictDate();
+		LocalDate verdictDate = verdictDate();
 //		System.out.println("判決日期: " + verdictDate);
 
 		// 呼叫 httpTest，並接收回傳值
-		String url = parser.httpTest();
+		String url = httpTest();
 //		System.out.println("生成的網址: " + url);
 
 		// 案件類型
@@ -502,9 +505,8 @@ public class ReadJsonTest {
 		saveCase.setLaw(lawString);
 		saveCase.setCaseType(caseType);
 		saveCase.setDocType(docType);
-		
+
 		caseDao.save(saveCase);
 	}
-
 
 }
