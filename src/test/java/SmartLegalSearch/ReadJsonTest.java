@@ -440,9 +440,6 @@ public class ReadJsonTest {
 		String judgmentContent = JudgmentContent(data.getFull());
 //		System.out.println("判決內容: "+ judgmentContent);
 
-		// 建立 LegalCaseParser 物件
-		LegalCaseParser parser = new LegalCaseParser();
-
 		// 呼叫 courtAndCharge，並接收回傳值
 		String[] courtAndCharge = courtAndCharge();
 
