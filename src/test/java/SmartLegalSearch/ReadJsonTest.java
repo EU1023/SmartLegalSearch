@@ -42,11 +42,11 @@ public class ReadJsonTest {
 			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,545,20240501,1.json");
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
-	static String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
+	private String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
 	// 未整理空白字串原文
-	static String unorganizedContent = data.getFull().replaceAll("[\\r|\\n|\\s|'']+", "");
+	private String unorganizedContent = data.getFull().replaceAll("[\\r|\\n|\\s|'']+", "");
 
-	public ArrayList<String> readJson1Test(String pattern) {
+	private ArrayList<String> readJson1Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
 		Pattern lowPattern = Pattern.compile(pattern);
 		// 進行比對: .group可取出符合條件的字串段、.start或.end會回傳符合條件的開始位置或結束位置
@@ -70,7 +70,7 @@ public class ReadJsonTest {
 	}
 
 	// 群組案號、唯一案號、審理法院、案由
-	public String[] courtAndCharge() {
+	private String[] courtAndCharge() {
 		String[] result = new String[4]; // 用於存放案號、法院代號、案由
 
 		// 群組案號
@@ -118,7 +118,7 @@ public class ReadJsonTest {
 	}
 
 	// 判決日期(阿拉伯數字)
-	public LocalDate verdictDate() {
+	private LocalDate verdictDate() {
 		// 匹配日期段落
 		String pattern = "中\\s*華\\s*民\\s*國\\s*([一二三四五六七八九十零百千\\d]{1,4})\\s*年\\s*([一二三四五六七八九十零\\d]{1,2})\\s*月\\s*([一二三四五六七八九十零\\d]{1,2})\\s*日";
 		ArrayList<String> dateStrList = readJson1Test(pattern);
@@ -147,14 +147,14 @@ public class ReadJsonTest {
 	}
 
 	// URL 生成
-	public String httpTest() {
+	private String httpTest() {
 		// 假設 data.getId() 返回的 id 字串
 		String id = data.getId();
 		return generateUrl(id);
 	}
 
 	// 生成網址的方法
-	public String generateUrl(String id) {
+	private String generateUrl(String id) {
 		// 替換逗號為 URL 兼容格式
 		String encodedId = id.replace(",", "%2c"); // 處理逗號
 		// encodedId = encodedId.replace("金訴", "%e9%87%91%e8%a8%b4"); //
@@ -164,7 +164,7 @@ public class ReadJsonTest {
 
 //=====================================================================
 	// 中文數字轉數字
-	public int convertChineseToArabic(String chineseNumber) {
+	private int convertChineseToArabic(String chineseNumber) {
 		// 如果輸入是純數字，直接返回其整數值
 		if (chineseNumber.matches("\\d+")) {
 			return Integer.parseInt(chineseNumber);
@@ -206,7 +206,7 @@ public class ReadJsonTest {
 	}
 
 	// 方法：將文件內文中的中文數字轉換為阿拉伯數字
-	public String convertTextChineseNumbers(String text) {
+	private String convertTextChineseNumbers(String text) {
 		// 匹配中文數字的正則表達式（針對 "第十四條" 和 "第十四項" 等格式）
 		Pattern pattern = Pattern.compile("第([一二三四五六七八九十百零]+)(條|項)");
 		Matcher matcher = pattern.matcher(text);
@@ -224,7 +224,7 @@ public class ReadJsonTest {
 	}
 
 	// 提取第一個法條
-	public String readJson2Test(String pattern) {
+	private String readJson2Test(String pattern) {
 		// 找出判決書中的符合 pattern 的段落
 		Pattern lowPattern = Pattern.compile(pattern);
 		// 使用正則匹配
@@ -309,7 +309,7 @@ public class ReadJsonTest {
 	}
 
 	// 提取全文中所有法條的方法
-	public List<String> extractAllLaws(String fullText, String pattern) {
+	private List<String> extractAllLaws(String fullText, String pattern) {
 		List<String> laws = new ArrayList<>(); // 用於存放匹配到的法條
 
 		// 清理空白字元並處理中文數字
