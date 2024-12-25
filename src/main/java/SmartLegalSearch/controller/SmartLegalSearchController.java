@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class SmartLegalSearchController {
 
     @GetMapping("hello")
-    public String getHello() {
+    public String getHello()
+
+
+
+    {
         return "{\"message\": \"Hello from Java\"}";
     }
 

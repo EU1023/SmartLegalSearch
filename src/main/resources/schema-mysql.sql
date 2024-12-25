@@ -14,4 +14,15 @@ CREATE TABLE IF NOT EXISTS `legal_case` (
   PRIMARY KEY (`group_id`,`id`,`court`)
 );
 
+CREATE TABLE IF NOT EXISTS `account_system` (
+  `email` varchar(100) NOT NULL,
+  `name` varchar(25) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `email_verified` tinyint(1) NOT NULL DEFAULT '0',
+  `role` varchar(25) NOT NULL DEFAULT 'user',
+  `identity` varchar(25) DEFAULT NULL,
+  `phone` varchar(25) DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
