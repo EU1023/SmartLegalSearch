@@ -33,7 +33,7 @@ public class CaseImpl implements CaseService {
 		// 裁判字號
 		String id = req.getVerdictId();
 		if (!StringUtils.hasText(id)) {
-			id = "";
+			id = "%";
 		}
 
 		// 開始時間
@@ -57,20 +57,20 @@ public class CaseImpl implements CaseService {
 		// 案由
 		String charge = req.getCharge();
 		if (!StringUtils.hasText(charge)) {
-			charge = "";
+			charge = "%";
 		}
 
 
 		// 案件類型
 		String caseType = req.getCaseType();
 		if (!StringUtils.hasText(caseType)) {
-			caseType = "";
+			caseType = "%";
 		}
 
 		// 文件類型
 		String docType = req.getDocType();
 		if (!StringUtils.hasText(docType)) {
-			docType = "";
+			docType = "%";
 		}
 
 		return new SearchRes(ResMessage.SUCCESS.getCode(), //

@@ -35,10 +35,10 @@ public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 	        + " from legal_case " //
 	        + " where text like concat('%', :name, '%') " // 
 	        + " and date between :startDate and :endDate" // date 在開始時間跟結束時間之間
-	        + " and id like concat('%', :id, '%') " // 
-	        + " and charge like concat('%', :charge, '%') " // 
-	        + " and case_type like concat('%', :caseType, '%') " // 
-	        + " and doc_type like concat('%', :docType, '%') " //
+	        + " and id like :id " // 
+	        + " and charge like :charge " // 
+	        + " and case_type like :caseType " // 
+	        + " and doc_type like :docType " //
 	        + " and (:courtList is null or court in (:courtList)) " // 如果 courtList 是 null 時就不會搜尋
 	        + " and (:lawList is null or law in (:lawList))", // 如果 lawList 是 null 時就不會搜尋
 	        nativeQuery = true) //

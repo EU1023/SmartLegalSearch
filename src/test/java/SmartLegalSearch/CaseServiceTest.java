@@ -17,19 +17,22 @@ import SmartLegalSearch.vo.SearchRes;
 public class CaseServiceTest {
 
 	@Autowired
-	private CaseService caseService ;
-	
+	private CaseService caseService;
+
 	@Test
 	public void searchTest() {
 		SearchReq req = new SearchReq();
-		
+		// 全部搜尋
+		SearchRes res = caseService.searchCriminalCase(req);
+//		System.out.println(res.getCaseList().size());
+
 		// 測試開始時間比結束時間晚
 		req.setVerdictStartYear(LocalDate.of(2024, 05, 30));
 		req.setVerdictEndYear(LocalDate.of(2024, 05, 10));
-		SearchRes res = caseService.searchCriminalCase(req);
+		res = caseService.searchCriminalCase(req);
 		Assert.isTrue(res.getMessage().equalsIgnoreCase(ResMessage.DATE_ERROR.getMessage()), "時間順序測試失敗");
 		System.out.println("時間順序測試成功");
-		
+//		
 		// 搜尋測試
 		req.setVerdictStartYear(LocalDate.of(2024, 05, 1));
 		req.setVerdictEndYear(LocalDate.of(2024, 05, 30));
@@ -39,7 +42,7 @@ public class CaseServiceTest {
 		req.setCourtList(List.of("SLD"));
 		req.setCaseType("刑事");
 		req.setDocType("判決");
-		
+
 		res = caseService.searchCriminalCase(req);
 		System.out.println(res.getCaseList().size());
 	}
