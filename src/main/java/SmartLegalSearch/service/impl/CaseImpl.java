@@ -1,9 +1,12 @@
 package SmartLegalSearch.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import SmartLegalSearch.constants.ResMessage;
@@ -60,7 +63,6 @@ public class CaseImpl implements CaseService {
 			charge = "%";
 		}
 
-
 		// 案件類型
 		String caseType = req.getCaseType();
 		if (!StringUtils.hasText(caseType)) {
@@ -73,10 +75,22 @@ public class CaseImpl implements CaseService {
 			docType = "%";
 		}
 
+		// 法條
+		String law = req.getLaw();
+		if (!StringUtils.hasText(law)) {
+			law = "%";
+		}
+
+		// 法院
+		List<String> courtList = req.getCourtList();
+		if (CollectionUtils.isEmpty(courtList)) {
+			courtList = new ArrayList<>();
+		}
+
 		return new SearchRes(ResMessage.SUCCESS.getCode(), //
 				ResMessage.SUCCESS.getMessage(), //
 				caseDao.searchByConditions(name, startDate, nedDate, id, //
-						charge, caseType, docType, req.getCourtList(), req.getLawList()));
+						charge, caseType, docType, law, courtList));
 	}
 
 	@Transactional
