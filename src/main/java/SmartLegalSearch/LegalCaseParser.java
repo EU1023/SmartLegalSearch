@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
@@ -25,8 +26,10 @@ import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.service.impl.CaseImpl;
 import SmartLegalSearch.vo.ReadJsonVo;
 
-@SpringBootApplication
 public class LegalCaseParser {
+	
+	
+	
 	/*
 	 * group_id id court date text judge_name defendant_name url charge case_type
 	 * doc_type案件群組識別碼 案件的唯一識別碼 審理法院 案由 判決日期 判決內容 法官姓名 被告姓名 判決書連結
@@ -500,11 +503,7 @@ public class LegalCaseParser {
 		saveCase.setCaseType(caseType);
 		saveCase.setDocType(docType);
 
-		ApplicationContext context = SpringApplication.run(LegalCaseParser.class, args);
-
-		CaseImpl caseImpl =context.getBean(CaseImpl.class);
-
-		LegalCase saveJudgment =caseImpl.saveJudgment(saveCase);
+		
 	}
 
 }
