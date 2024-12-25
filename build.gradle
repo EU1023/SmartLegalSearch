@@ -28,12 +28,14 @@ dependencies {
 	implementation 'com.mysql:mysql-connector-j'
 	// 資料驗證
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	//Cache
+	// Cache
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	// Caffeine Cache
 	implementation 'com.github.ben-manes.caffeine:caffeine'
 	// open api
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
+	// mybatis plus
+	implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.9'
 	
 	
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
