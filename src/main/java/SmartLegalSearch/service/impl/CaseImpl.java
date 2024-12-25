@@ -1,20 +1,21 @@
 package SmartLegalSearch.service.impl;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-import SmartLegalSearch.entity.LegalCase;
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import SmartLegalSearch.constants.ResMessage;
+import SmartLegalSearch.entity.LegalCase;
 import SmartLegalSearch.repository.CaseDao;
 import SmartLegalSearch.service.ifs.CaseService;
 import SmartLegalSearch.vo.SearchReq;
 import SmartLegalSearch.vo.SearchRes;
+import jakarta.transaction.Transactional;
 
 @Service
 public class CaseImpl implements CaseService {
@@ -35,7 +36,7 @@ public class CaseImpl implements CaseService {
 		// 裁判字號
 		String id = req.getVerdictId();
 		if (!StringUtils.hasText(id)) {
-			id = "";
+			id = "%";
 		}
 
 		// 開始時間
@@ -59,37 +60,37 @@ public class CaseImpl implements CaseService {
 		// 案由
 		String charge = req.getCharge();
 		if (!StringUtils.hasText(charge)) {
-			charge = "";
-		}
-
-		// 法院
-		List<String> courtList = req.getCourtList();
-		if (CollectionUtils.isEmpty(courtList)) {
-			courtList = List.of("%");
-		}
-
-		// 法條
-		List<String> lawList = req.getLawList();
-		if (CollectionUtils.isEmpty(lawList)) {
-			lawList = List.of("%");
+			charge = "%";
 		}
 
 		// 案件類型
 		String caseType = req.getCaseType();
 		if (!StringUtils.hasText(caseType)) {
-			caseType = "";
+			caseType = "%";
 		}
 
 		// 文件類型
 		String docType = req.getDocType();
 		if (!StringUtils.hasText(docType)) {
-			docType = "";
+			docType = "%";
+		}
+
+		// 法條
+		String law = req.getLaw();
+		if (!StringUtils.hasText(law)) {
+			law = "%";
+		}
+
+		// 法院
+		List<String> courtList = req.getCourtList();
+		if (CollectionUtils.isEmpty(courtList)) {
+			courtList = new ArrayList<>();
 		}
 
 		return new SearchRes(ResMessage.SUCCESS.getCode(), //
 				ResMessage.SUCCESS.getMessage(), //
 				caseDao.searchByConditions(name, startDate, nedDate, id, //
-						charge, caseType, docType, courtList, lawList));
+						charge, caseType, docType, law, courtList));
 	}
 
 	@Transactional

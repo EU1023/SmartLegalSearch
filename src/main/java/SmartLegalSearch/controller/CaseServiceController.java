@@ -20,7 +20,7 @@ public class CaseServiceController {
 	private CaseService caseService;
 
 	// 搜尋功能
-	@PostMapping(value = "searchCriminalCase")
+	@PostMapping(value = "search")
 	public SearchRes searchCriminalCase(@RequestBody SearchReq req) {
 		return caseService.searchCriminalCase(req);
 	};

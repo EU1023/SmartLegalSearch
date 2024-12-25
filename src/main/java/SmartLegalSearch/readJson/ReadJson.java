@@ -1,11 +1,11 @@
 package SmartLegalSearch.readJson;
 
+import java.io.File;
+import java.io.IOException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import SmartLegalSearch.vo.ReadJsonVo;
-
-import java.io.File;
-import java.io.IOException;
 
 public class ReadJson {
 

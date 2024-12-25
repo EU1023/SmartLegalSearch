@@ -1,10 +1,13 @@
 package SmartLegalSearch;
 
+<<<<<<< HEAD
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+=======
+>>>>>>> dev_jerry
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -12,10 +15,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+=======
+import org.springframework.boot.test.context.SpringBootTest;
+>>>>>>> dev_jerry
 
 import SmartLegalSearch.entity.LegalCase;
 import SmartLegalSearch.readJson.ReadJson;

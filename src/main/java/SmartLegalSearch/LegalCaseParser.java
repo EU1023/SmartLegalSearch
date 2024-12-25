@@ -26,6 +26,10 @@ import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.service.impl.CaseImpl;
 import SmartLegalSearch.vo.ReadJsonVo;
 
+<<<<<<< HEAD
+=======
+//@SpringBootApplication
+>>>>>>> dev_jerry
 public class LegalCaseParser {
 <<<<<<< HEAD
 	
@@ -42,7 +46,11 @@ public class LegalCaseParser {
 	private static ReadJson readJson = new ReadJson();
 	// 設置 JSON 文件的路徑
 	private static ReadJsonVo data = readJson
+<<<<<<< HEAD
 			.readJson("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,113,基簡,52,20240531,1.json");
+=======
+			.readJson("C:\\Users\\user\\Desktop\\202405\\臺灣士林地方法院刑事\\SLDM,111,附民,1579,20240509,1.json");
+>>>>>>> dev_jerry
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 	static String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
