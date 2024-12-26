@@ -27,8 +27,8 @@ public class CaseServiceTest {
 		System.out.println(res.getCaseList().size());
 
 		// 測試開始時間比結束時間晚
-		req.setVerdictStartYear(LocalDate.of(2024, 05, 30));
-		req.setVerdictEndYear(LocalDate.of(2024, 05, 10));
+		req.setVerdictStartDate(LocalDate.of(2024, 05, 30));
+		req.setVerdictEndDate(LocalDate.of(2024, 05, 10));
 		res = caseService.searchCriminalCase(req);
 		Assert.isTrue(res.getMessage().equalsIgnoreCase(ResMessage.DATE_ERROR.getMessage()), "時間順序測試失敗");
 		System.out.println("時間順序測試成功");

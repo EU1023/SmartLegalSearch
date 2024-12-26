@@ -40,13 +40,13 @@ public class CaseImpl implements CaseService {
 		}
 
 		// 開始時間
-		LocalDate startDate = req.getVerdictStartYear();
+		LocalDate startDate = req.getVerdictStartDate();
 		if (startDate == null) {
 			startDate = LocalDate.of(1950, 1, 1);
 		}
 
 		// 結束時間
-		LocalDate nedDate = req.getVerdictEndYear();
+		LocalDate nedDate = req.getVerdictEndDate();
 		if (nedDate == null) {
 			nedDate = LocalDate.of(9999, 12, 31);
 		}

@@ -12,20 +12,20 @@ public class SearchReq {
 	private String verdictId;
 
 	// 開始時間
-	private LocalDate verdictStartYear;
+	private LocalDate verdictStartDate;
 
 	// 結束時間
-	private LocalDate verdictEndYear;
+	private LocalDate verdictEndDate;
 
 	// 案由
 	private String charge;
 
-	// 案件類型
+	// 案件類型:刑法、名法等等
 	private String caseType;
 
-	// 文件類型
+	// 文件類型:裁定、判決
 	private String docType;
-	
+
 	// 法條
 	private String law;
 
@@ -36,13 +36,13 @@ public class SearchReq {
 		super();
 	}
 
-	public SearchReq(String searchName, String verdictId, LocalDate verdictStartYear, LocalDate verdictEndYear,
+	public SearchReq(String searchName, String verdictId, LocalDate verdictStartDate, LocalDate verdictEndDate,
 			String charge, String caseType, String docType, String law, List<String> courtList) {
 		super();
 		this.searchName = searchName;
 		this.verdictId = verdictId;
-		this.verdictStartYear = verdictStartYear;
-		this.verdictEndYear = verdictEndYear;
+		this.verdictStartDate = verdictStartDate;
+		this.verdictEndDate = verdictEndDate;
 		this.charge = charge;
 		this.caseType = caseType;
 		this.docType = docType;
@@ -66,20 +66,20 @@ public class SearchReq {
 		this.verdictId = verdictId;
 	}
 
-	public LocalDate getVerdictStartYear() {
-		return verdictStartYear;
+	public LocalDate getVerdictStartDate() {
+		return verdictStartDate;
 	}
 
-	public void setVerdictStartYear(LocalDate verdictStartYear) {
-		this.verdictStartYear = verdictStartYear;
+	public void setVerdictStartDate(LocalDate verdictStartDate) {
+		this.verdictStartDate = verdictStartDate;
 	}
 
-	public LocalDate getVerdictEndYear() {
-		return verdictEndYear;
+	public LocalDate getVerdictEndDate() {
+		return verdictEndDate;
 	}
 
-	public void setVerdictEndYear(LocalDate verdictEndYear) {
-		this.verdictEndYear = verdictEndYear;
+	public void setVerdictEndDate(LocalDate verdictEndDate) {
+		this.verdictEndDate = verdictEndDate;
 	}
 
 	public String getCharge() {
@@ -106,20 +106,20 @@ public class SearchReq {
 		this.docType = docType;
 	}
 
-	public List<String> getCourtList() {
-		return courtList;
-	}
-
-	public void setCourtList(List<String> courtList) {
-		this.courtList = courtList;
-	}
-
 	public String getLaw() {
 		return law;
 	}
 
 	public void setLaw(String law) {
 		this.law = law;
+	}
+
+	public List<String> getCourtList() {
+		return courtList;
+	}
+
+	public void setCourtList(List<String> courtList) {
+		this.courtList = courtList;
 	}
 
 }
