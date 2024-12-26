@@ -1,8 +1,12 @@
 package SmartLegalSearch.service.impl;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +26,10 @@ public class CaseImpl implements CaseService {
 
 	@Autowired
 	private CaseDao caseDao;
+
+	// 動態資料查詢用
+	@Autowired
+	private DataSource dataSource;
 
 	@Override
 	public SearchRes searchCriminalCase(SearchReq req) {
@@ -76,9 +84,9 @@ public class CaseImpl implements CaseService {
 		}
 
 		// 法條
-		String law = req.getLaw();
-		if (!StringUtils.hasText(law)) {
-			law = "%";
+		List<String> lawList = req.getLawList();
+		if (CollectionUtils.isEmpty(lawList)) {
+			lawList = new ArrayList<>();;
 		}
 
 		// 法院
@@ -87,10 +95,16 @@ public class CaseImpl implements CaseService {
 			courtList = new ArrayList<>();
 		}
 
+		List<LegalCase> res = new ArrayList<>();
+		try (Connection connection = dataSource.getConnection()) {
+			res = caseDao.searchByConditions(connection, name, startDate, nedDate, //
+					id, charge, caseType, docType, courtList, lawList);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return new SearchRes(ResMessage.SUCCESS.getCode(), //
-				ResMessage.SUCCESS.getMessage(), //
-				caseDao.searchByConditions(name, startDate, nedDate, id, //
-						charge, caseType, docType, law, courtList));
+				ResMessage.SUCCESS.getMessage(), res) //
+		;
 	}
 
 	@Transactional

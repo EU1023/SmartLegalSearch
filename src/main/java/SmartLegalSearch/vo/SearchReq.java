@@ -26,18 +26,18 @@ public class SearchReq {
 	// 文件類型:裁定、判決
 	private String docType;
 
-	// 法條
-	private String law;
-
 	// 法院
 	private List<String> courtList;
+
+	// 法條
+	private List<String> lawList;
 
 	public SearchReq() {
 		super();
 	}
 
 	public SearchReq(String searchName, String verdictId, LocalDate verdictStartDate, LocalDate verdictEndDate,
-			String charge, String caseType, String docType, String law, List<String> courtList) {
+			String charge, String caseType, String docType, List<String> courtList, List<String> lawList) {
 		super();
 		this.searchName = searchName;
 		this.verdictId = verdictId;
@@ -46,8 +46,8 @@ public class SearchReq {
 		this.charge = charge;
 		this.caseType = caseType;
 		this.docType = docType;
-		this.law = law;
 		this.courtList = courtList;
+		this.lawList = lawList;
 	}
 
 	public String getSearchName() {
@@ -106,20 +106,20 @@ public class SearchReq {
 		this.docType = docType;
 	}
 
-	public String getLaw() {
-		return law;
-	}
-
-	public void setLaw(String law) {
-		this.law = law;
-	}
-
 	public List<String> getCourtList() {
 		return courtList;
 	}
 
 	public void setCourtList(List<String> courtList) {
 		this.courtList = courtList;
+	}
+
+	public List<String> getLawList() {
+		return lawList;
+	}
+
+	public void setLawList(List<String> lawList) {
+		this.lawList = lawList;
 	}
 
 }
