@@ -34,7 +34,7 @@ public class ReadJsonTest {
 	private static ReadJson readJson = new ReadJson();
 	// 設置 JSON 文件的路徑
 	private static ReadJsonVo data = readJson
-			.readJson("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,545,20240501,1.json");
+			.readJsonByPath("D:\\JavaProject\\臺灣基隆地方法院刑事\\刑事\\判決\\KLDM,112,金訴,545,20240501,1.json");
 
 	// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 	private String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
