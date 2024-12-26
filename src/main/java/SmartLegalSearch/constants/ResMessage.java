@@ -3,7 +3,8 @@ package SmartLegalSearch.constants;
 public enum ResMessage {
 	// 格式: 全大寫英文(code, message);
 	SUCCESS(200, "Success!!"),//
-	DATE_ERROR(400, "Date error!!");//
+	DATE_ERROR(400, "Date error!!"),//
+	EMAIL_DUPLICATED(400, "Email duplicated!!");
 
 	private int code;
 

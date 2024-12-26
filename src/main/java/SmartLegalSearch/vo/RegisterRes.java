@@ -3,7 +3,7 @@ package SmartLegalSearch.vo;
 public class RegisterRes extends BasicRes {
 
     public enum RegisterStatus {
-        PENDING, SUCCESS, ERROR
+        EMAIL_VERIFICATION_PENDING, SUCCESS, ERROR
     }
 
     private String email;
@@ -15,6 +15,10 @@ public class RegisterRes extends BasicRes {
     private String role;
 
     public RegisterRes() {
+    }
+
+    public RegisterRes(int code, String message) {
+        super(code, message);
     }
 
     public RegisterRes(int code, String message, String email, String name, RegisterStatus status, String role) {
