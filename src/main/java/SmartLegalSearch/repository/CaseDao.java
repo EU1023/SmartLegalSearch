@@ -1,24 +1,26 @@
 package SmartLegalSearch.repository;
 
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
-import SmartLegalSearch.entity.LegalCase;
 import SmartLegalSearch.entity.CaseId;
+import SmartLegalSearch.entity.LegalCase;
 
 @Repository
 public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 
-	// 搜尋
 	/**
-	 * 使用 concat 是因為 :name 站位符號不能使用 '%:name%' 這種寫法 <br>
-	 * 會被 SQL 視為一個單字，而不是 %模糊搜尋內容%。
-	 * 
+	 * 搜尋
 	 * @param name      模糊搜尋名稱
 	 * @param startDate 開始時間
 	 * @param endDate   結束時間
@@ -30,27 +32,100 @@ public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 	 * @param courtList 法院陣列
 	 * @return Case 陣列
 	 */
-	@Query(value = "select group_id, id, court, date, url, charge, judge_name, " //
-			+ " defendant_name, text, law, case_type, doc_type " //
-			+ " from legal_case " //
-			+ " where text like concat('%', :name, '%') " //
-			+ " and date between :startDate and :endDate" // date 在開始時間跟結束時間之間
-			+ " and id like :id " //
-			+ " and charge like :charge " //
-			+ " and case_type like :caseType " //
-			+ " and doc_type like :docType " //
-			+ " and law like concat('%', :law, '%') " //
-			+ " and (:courtList is null or court in (:courtList)) ", // 如果 courtList 是 null 時就不會搜尋
-			nativeQuery = true) //
-	public List<LegalCase> searchByConditions( //
-			@Param("name") String name, //
-			@Param("startDate") LocalDate startDate, //
-			@Param("endDate") LocalDate endDate, //
-			@Param("id") String id, //
-			@Param("charge") String charge, //
-			@Param("caseType") String caseType, //
-			@Param("docType") String docType, //
-			@Param("law") String law,
-			@Param("courtList") List<String> courtList //
-			);
+	public default List<LegalCase> searchByConditions(Connection connection, String name, //
+			LocalDate startDate, LocalDate endDate, String id, //
+			String charge, String caseType, String docType, //
+			List<String> courtList, List<String> lawList) {
+
+		// 1. 撰寫 SQL like 語法(native query)
+		String sqlStr = "select group_id, id, court, date, url, charge, judge_name, " //
+				+ " defendant_name, text, law, case_type, doc_type " //
+				+ " from legal_case " //
+				+ " where text like concat('%', ?, '%') " //
+				+ " and date between ? and ?" // date 在開始時間跟結束時間之間
+				+ " and id like ? " //
+				+ " and charge like ? " //
+				+ " and case_type like ? " //
+				+ " and doc_type like ? " ;//
+		StringBuffer sbf = new StringBuffer(sqlStr);
+		// 1.1 串接 concat 中的動態參數
+		// 法院
+		if(courtList.size() > 0) {
+			sbf.append(" and court regexp concat(");
+		}
+		for (int i = 0; i < courtList.size(); i++) {
+			// 當 i "不等於" keywordList 的 size - 1 時
+			sbf.append("?");
+			if (i != courtList.size() - 1) {
+				sbf.append(", '|' ,");
+			}
+			// 當 i "等於" keywordList 的 size - 1 時
+			if (i == courtList.size() - 1) {
+				sbf.append(")");
+			}
+		}
+		// 法條
+		if (lawList.size() > 0) {
+			sbf.append(" and law regexp concat(");
+		}
+		for (int i = 0; i < lawList.size(); i++) {
+			// 當 i "不等於" keywordList 的 size - 1 時
+			sbf.append("?");
+			if (i != lawList.size() - 1) {
+				sbf.append(", '|' ,");
+			}
+			// 當 i "等於" keywordList 的 size - 1 時
+			if (i == lawList.size() - 1) {
+				sbf.append(")");
+			}
+		}
+		// (預備用)4. 要回傳的 res
+		List<LegalCase> res = new ArrayList<>();
+		// 2. 透過 PreparedStatement 使用 query regexp 語法並設定對應的參數值
+		try (PreparedStatement pstmt = connection.prepareStatement(sbf.toString())) {
+			pstmt.setString(1, name);
+			pstmt.setDate(2, Date.valueOf(startDate));
+			pstmt.setDate(3, Date.valueOf(endDate));
+			pstmt.setString(4, id);
+			pstmt.setString(5, charge);
+			pstmt.setString(6, caseType);
+			pstmt.setString(7, docType);
+			int courtParamIndex = 8;
+			for (String court : courtList) {
+				pstmt.setString(courtParamIndex, court);
+				courtParamIndex++;
+			}
+			int lawParamIndex = courtParamIndex;
+			for (String law : lawList) {
+				pstmt.setString(lawParamIndex, law);
+				lawParamIndex++;
+			}
+			// 3. 執行查詢
+			ResultSet resSet = pstmt.executeQuery();
+			// 查詢(read)以外的才要提交(commit)
+			// 4. 把 ResulySet 中的結果轉換成 list<Atm1>;
+			while (resSet.next()) {// resSet.next(): 判斷 resSet 中是否還有東西，若有，會將指針直到下一個目標
+				LegalCase legalcase = new LegalCase();
+				// 依語法中 select 欄位參數位置決定數字
+				legalcase.setGroupId(resSet.getString(1));
+				legalcase.setId(resSet.getString(2));
+				legalcase.setCourt(resSet.getString(3));
+				legalcase.setDate(resSet.getDate(4).toLocalDate());
+				legalcase.setUrl(resSet.getString(5));
+				legalcase.setCharge(resSet.getString(6));
+				legalcase.setJudgeName(resSet.getString(7));
+				legalcase.setDefendantName(resSet.getString(8));
+				legalcase.setText(resSet.getString(9));
+				legalcase.setLaw(resSet.getString(10));
+				legalcase.setCaseType(resSet.getString(11));
+				legalcase.setDocType(resSet.getString(12));
+				res.add(legalcase);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	};
+	
+	
 }
