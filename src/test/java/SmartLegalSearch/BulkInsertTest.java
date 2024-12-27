@@ -1,8 +1,8 @@
 package SmartLegalSearch;
 
 import SmartLegalSearch.entity.LegalCase;
-import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.repository.CaseDao;
+import SmartLegalSearch.service.impl.ReadJson;
 import SmartLegalSearch.vo.ReadJsonVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ public class BulkInsertTest {
 	private CaseDao caseDao;
 
 	// 檔案資料夾
-	private String folderPath = "D:\\JavaProject\\202405\\臺灣彰化地方法院刑事"; // 替換為實際目錄路徑
+	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣宜蘭地方法院刑事"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
@@ -49,7 +49,9 @@ public class BulkInsertTest {
 		// 以正規化取關鍵字
 		List<LegalCase> legalCaseList = new ArrayList<>();
 		for (ReadJsonVo data : dataList) {
+			// 不想顯示一大堆東西可以把下一行註解到
 			System.out.println(data.getId());
+			
 			String contentStr = data.getFull();
 			if (!StringUtils.hasText(contentStr)) {
 				continue;
@@ -68,13 +70,13 @@ public class BulkInsertTest {
 			legalCase.setCharge(courtAndCharge[3]);
 
 			// 判決日期
-			legalCase.setDate(verdictDate(data));
+			legalCase.setVerdictDate(verdictDate(data));
 
 			// 判決書連結
 			legalCase.setUrl(httpUrl(data));
 
 			// 判決內容
-			legalCase.setText(contentStr);
+			legalCase.setContent(contentStr);
 
 			// 被告姓名
 			legalCase.setDefendantName(DefendantName(contentStr));

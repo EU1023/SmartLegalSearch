@@ -9,12 +9,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import SmartLegalSearch.readJson.ReadJson;
 import SmartLegalSearch.repository.CaseDao;
+import SmartLegalSearch.service.impl.ReadJson;
 import SmartLegalSearch.vo.ReadJsonVo;
 
 @SpringBootTest
-public class singleInsetTest {
+public class SingleInsetTest {
 
 	@Autowired
 	private CaseDao caseDao;

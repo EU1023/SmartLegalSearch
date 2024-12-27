@@ -1,6 +1,5 @@
 package SmartLegalSearch.repository;
 
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -11,7 +10,6 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
 
 import SmartLegalSearch.entity.CaseId;
 import SmartLegalSearch.entity.LegalCase;
@@ -38,11 +36,11 @@ public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 			List<String> courtList, List<String> lawList) {
 
 		// 1. 撰寫 SQL like 語法(native query)
-		String sqlStr = "select group_id, id, court, date, url, charge, judge_name, " //
-				+ " defendant_name, text, law, case_type, doc_type " //
+		String sqlStr = "select group_id, id, court, verdict_date, url, charge, judge_name, " //
+				+ " defendant_name, content, law, case_type, doc_type " //
 				+ " from legal_case " //
-				+ " where text like concat('%', ?, '%') " //
-				+ " and date between ? and ?" // date 在開始時間跟結束時間之間
+				+ " where content like concat('%', ?, '%') " //
+				+ " and verdict_date between ? and ?" // date 在開始時間跟結束時間之間
 				+ " and id like ? " //
 				+ " and charge like ? " //
 				+ " and case_type like ? " //
@@ -110,12 +108,12 @@ public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 				legalcase.setGroupId(resSet.getString(1));
 				legalcase.setId(resSet.getString(2));
 				legalcase.setCourt(resSet.getString(3));
-				legalcase.setDate(resSet.getDate(4).toLocalDate());
+				legalcase.setVerdictDate(resSet.getDate(4).toLocalDate());
 				legalcase.setUrl(resSet.getString(5));
 				legalcase.setCharge(resSet.getString(6));
 				legalcase.setJudgeName(resSet.getString(7));
 				legalcase.setDefendantName(resSet.getString(8));
-				legalcase.setText(resSet.getString(9));
+				legalcase.setContent(resSet.getString(9));
 				legalcase.setLaw(resSet.getString(10));
 				legalcase.setCaseType(resSet.getString(11));
 				legalcase.setDocType(resSet.getString(12));
