@@ -28,7 +28,7 @@ public class BulkInsertTest {
 	private CaseDao caseDao;
 
 	// 檔案資料夾
-	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣士林地方法院刑事"; // 替換為實際目錄路徑
+	private String folderPath = "D:\\JavaProject\\202405"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
@@ -186,15 +186,20 @@ public class BulkInsertTest {
 		// 處理「百」、「十」、「個位數」
 		if (chineseNumber.contains("百")) {
 			String[] parts = chineseNumber.split("百");
-			temp = parts[0].isEmpty() ? 1 : processDigits(parts[0]);
-			result += temp * 100;
-			chineseNumber = parts.length > 1 ? parts[1] : "";
+			if (!StringUtils.hasText(chineseNumber)) {
+				temp = parts[0].isEmpty() ? 1 : processDigits(parts[0]);
+				result += temp * 100;
+				chineseNumber = parts.length > 1 ? parts[1] : "";
+			}
+			
 		}
 		if (chineseNumber.contains("十")) {
 			String[] parts = chineseNumber.split("十");
-			temp = parts[0].isEmpty() ? 1 : processDigits(parts[0]);
-			result += temp * 10;
-			chineseNumber = parts.length > 1 ? parts[1] : "";
+			if (!StringUtils.hasText(chineseNumber)) {
+				temp = parts[0].isEmpty() ? 1 : processDigits(parts[0]);
+				result += temp * 10;
+				chineseNumber = parts.length > 1 ? parts[1] : "";
+			}
 		}
 		if (!chineseNumber.isEmpty()) {
 			result += processDigits(chineseNumber);
@@ -234,8 +239,13 @@ public class BulkInsertTest {
 			int day = convertChineseToArabic(dateParts[2]);
 
 			// 範圍檢查
-			if (month < 1 || month > 12 || day < 1 || day > 31) {
-				throw new IllegalArgumentException("日期超出範圍: " + firstDateStr);
+			if (year < 2000 || year > LocalDate.now().getYear()||month < 1 || month > 12 || day < 1 || day > 31) {
+				firstDateStr = dateStrList.get(1).replaceAll("中\\s*華\\s*民\\s*國\\s*|\\s+", "");
+				dateParts = firstDateStr.split("年|月|日");
+				year = convertChineseToArabic(dateParts[0]) + 1911;
+				month = convertChineseToArabic(dateParts[1]);
+				day = convertChineseToArabic(dateParts[2]);
+//				throw new IllegalArgumentException("日期超出範圍: " + firstDateStr);
 			}
 
 			// 回傳 LocalDate 物件
