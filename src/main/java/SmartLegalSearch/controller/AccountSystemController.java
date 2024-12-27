@@ -23,6 +23,6 @@ public class AccountSystemController {
 
     @PostMapping("register")
     public RegisterRes register(RegisterReq req) {
-        return RegisterRes(req.);
+        return null;
     }
 }

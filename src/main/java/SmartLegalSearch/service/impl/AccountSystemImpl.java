@@ -8,7 +8,7 @@ import SmartLegalSearch.service.ifs.EmailService;
 import SmartLegalSearch.vo.RegisterReq;
 import SmartLegalSearch.vo.RegisterRes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,24 +20,24 @@ public class AccountSystemImpl implements AccountSystemService {
     @Autowired
     private AccountSystemDao accountSystemDao;
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+//    @Autowired
+//    private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     private EmailService emailService;
 
     @Override
     public RegisterRes register(RegisterReq req) {
-        // 檢查資料庫是否 email 是否已存在
+        // 瑼Ｘ鞈�澈�� email ��撌脣�
         if (accountSystemDao.existsByEmail(req.getEmail())) {
             return new RegisterRes(ResMessage.EMAIL_DUPLICATED.getCode(), ResMessage.EMAIL_DUPLICATED.getMessage());
         }
 
-        // 創建新帳戶
+        // �撱箸撣單
         AccountSystem newUser = new AccountSystem();
         newUser.setEmail(req.getEmail());
         newUser.setName(req.getName());
-        newUser.setPassword(passwordEncoder.encode(req.getPassword()));
+//        newUser.setPassword(passwordEncoder.encode(req.getPassword()));
         newUser.setPhone(req.getPhone());
         newUser.setRole(req.getRole());
         newUser.setIdentity(req.getIdentity());
@@ -46,7 +46,7 @@ public class AccountSystemImpl implements AccountSystemService {
         String verificationToken = UUID.randomUUID().toString();
         LocalDateTime tokenExpiry = LocalDateTime.now().plusMinutes(15);
         newUser.setEmailVerificationToken(verificationToken);
-        newUser.setEmailVerificationToken();
+//        newUser.setEmailVerificationToken();
 
         AccountSystem savedUser = accountSystemDao.save(newUser);
 
