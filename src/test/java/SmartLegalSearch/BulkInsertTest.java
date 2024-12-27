@@ -69,13 +69,13 @@ public class BulkInsertTest {
 			legalCase.setCharge(courtAndCharge[3]);
 
 			// 判決日期
-			legalCase.setDate(verdictDate(data));
+			legalCase.setVerdictDate(verdictDate(data));
 
 			// 判決書連結
 			legalCase.setUrl(httpUrl(data));
 
 			// 判決內容
-			legalCase.setText(contentStr);
+			legalCase.setContent(contentStr);
 
 			// 被告姓名
 			legalCase.setDefendantName(DefendantName(contentStr));
