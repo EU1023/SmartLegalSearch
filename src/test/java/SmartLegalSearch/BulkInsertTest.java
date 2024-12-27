@@ -7,6 +7,8 @@ import SmartLegalSearch.vo.ReadJsonVo;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,9 +26,9 @@ public class BulkInsertTest {
 
 	@Autowired
 	private CaseDao caseDao;
-	
+
 	// 檔案資料夾
-	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣宜蘭地方法院民事"; // 替換為實際目錄路徑
+	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣士林地方法院刑事"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
@@ -47,17 +49,21 @@ public class BulkInsertTest {
 		// 以正規化取關鍵字
 		List<LegalCase> legalCaseList = new ArrayList<>();
 		for (ReadJsonVo data : dataList) {
+			System.out.println(data.getId());
 			String contentStr = data.getFull();
+			if (!StringUtils.hasText(contentStr)) {
+				continue;
+			}
 			LegalCase legalCase = new LegalCase();
 			String[] courtAndCharge = courtAndCharge(data);
-			
+
 			// id 案號
 			legalCase.setGroupId(courtAndCharge[1]);
 			legalCase.setId(courtAndCharge[1]);
-			
+
 			// 法院代碼
 			legalCase.setCourt(courtAndCharge[2]);
-			
+
 			// 案由
 			legalCase.setCharge(courtAndCharge[3]);
 
@@ -66,31 +72,31 @@ public class BulkInsertTest {
 
 			// 判決書連結
 			legalCase.setUrl(httpUrl(data));
-			
+
 			// 判決內容
 			legalCase.setText(contentStr);
-			
+
 			// 被告姓名
 			legalCase.setDefendantName(DefendantName(contentStr));
-			
+
 			// 法官姓名
 			legalCase.setJudgeName(JudgesName(contentStr));
-			
+
 			// 相關法條
 			legalCase.setLaw(extractAllLaws(contentStr));
-			
+
 			// 案件類型，如刑事、民事、行政
 			legalCase.setCaseType(CaseType(data));
-			
+
 			// 文件類型，裁定或判決或釋字等
 			legalCase.setDocType(DocType(contentStr));
-			
+
 			legalCaseList.add(legalCase);
 		}
 		caseDao.saveAll(legalCaseList);
 	}
 
-	private ArrayList<String> readJson1Test(String pattern, ReadJsonVo data) {
+	private ArrayList<String> searchAndGetInPattern(String pattern, ReadJsonVo data) {
 		// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 		String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
 
@@ -122,7 +128,12 @@ public class BulkInsertTest {
 
 		// 群組案號
 		String idPattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
-		String group_id = readJson1Test(idPattern, data).get(0);
+		// 確認正規迴圈有找到東西，如果沒找到，group_id 會保持 null
+		String group_id = null;
+		ArrayList<String> check = searchAndGetInPattern(idPattern, data);
+		if(!CollectionUtils.isEmpty(check)) {
+			group_id = check.get(0);
+		}
 		result[0] = group_id;
 		// ==========================================
 		// 唯一案號的處理
@@ -138,7 +149,7 @@ public class BulkInsertTest {
 				String finalNumber = matcher.group(4); // 最後的數字編號（例如 1 或 2）
 				// 在文中組合查找對應的唯一案號
 				String specificCasePattern = "([一二三四五六七八九十]|\\d){2,4}年度" + caseType + "字第" + uniqueId + "號";
-				List<String> matchedCases = readJson1Test(specificCasePattern, data);
+				List<String> matchedCases = searchAndGetInPattern(specificCasePattern, data);
 				if (!matchedCases.isEmpty()) {
 					result[1] = matchedCases.get(0); // 取匹配到的第一個案號
 				} else {
@@ -209,7 +220,7 @@ public class BulkInsertTest {
 	private LocalDate verdictDate(ReadJsonVo data) {
 		// 匹配日期段落
 		String pattern = "中\\s*華\\s*民\\s*國\\s*([一二三四五六七八九十零百千\\d]{1,4})\\s*年\\s*([一二三四五六七八九十零\\d]{1,2})\\s*月\\s*([一二三四五六七八九十零\\d]{1,2})\\s*日";
-		ArrayList<String> dateStrList = readJson1Test(pattern, data);
+		ArrayList<String> dateStrList = searchAndGetInPattern(pattern, data);
 
 		if (dateStrList.isEmpty()) {
 			throw new IllegalArgumentException("未找到符合格式的判決日期！");
