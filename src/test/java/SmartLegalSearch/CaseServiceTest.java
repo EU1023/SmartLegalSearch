@@ -1,14 +1,11 @@
 package SmartLegalSearch;
 
-import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.util.Assert;
 
-import SmartLegalSearch.constants.ResMessage;
 import SmartLegalSearch.service.ifs.CaseService;
 import SmartLegalSearch.vo.SearchReq;
 import SmartLegalSearch.vo.SearchRes;
@@ -24,7 +21,7 @@ public class CaseServiceTest {
 		SearchReq req = new SearchReq();
 		// 全部搜尋
 		SearchRes res = caseService.searchCriminalCase(req);
-//		System.out.println(res.getCaseList().size());
+		System.out.println(res.getCaseList().size());
 
 		// 測試開始時間比結束時間晚
 //		req.setVerdictStartDate(LocalDate.of(2024, 05, 30));
@@ -49,9 +46,9 @@ public class CaseServiceTest {
 		// 文件類型
 //		req.setDocType("判決");
 		// 法條
-		req.setLawList(List.of("洗錢防制法第14條", "刑法第13條第1項"));
+//		req.setLawList(List.of("洗錢防制法第14條", "刑法第13條第1項"));
 		// 法院
-		req.setCourtList(List.of("SLD", "AAA"));
+//		req.setCourtList(List.of("SLD", "AAA"));
 		//
 
 		res = caseService.searchCriminalCase(req);
