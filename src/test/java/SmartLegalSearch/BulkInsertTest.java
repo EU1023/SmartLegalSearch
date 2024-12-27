@@ -28,7 +28,9 @@ public class BulkInsertTest {
 	private CaseDao caseDao;
 
 	// 檔案資料夾
-	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣宜蘭地方法院刑事"; // 替換為實際目錄路徑
+	private String folderPath = "D:\\JavaProject\\202405\\臺灣彰化地方法院刑事"; // 替換為實際目錄路徑
+	// 單筆
+//	private String folderPath = "D:\\JavaProject\\202405\\臺灣彰化地方法院刑事\\CHDM,113,簡上,14,20240529,1.json"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
@@ -49,9 +51,6 @@ public class BulkInsertTest {
 		// 以正規化取關鍵字
 		List<LegalCase> legalCaseList = new ArrayList<>();
 		for (ReadJsonVo data : dataList) {
-			// 不想顯示一大堆東西可以把下一行註解到
-			System.out.println(data.getId());
-			
 			String contentStr = data.getFull();
 			if (!StringUtils.hasText(contentStr)) {
 				continue;
@@ -70,20 +69,20 @@ public class BulkInsertTest {
 			legalCase.setCharge(courtAndCharge[3]);
 
 			// 判決日期
-			legalCase.setVerdictDate(verdictDate(data));
+			legalCase.setDate(verdictDate(data));
 
 			// 判決書連結
 			legalCase.setUrl(httpUrl(data));
 
 			// 判決內容
-			legalCase.setContent(contentStr);
+			legalCase.setText(contentStr);
 
 			// 被告姓名
 			legalCase.setDefendantName(DefendantName(contentStr));
 
 			// 法官姓名
 			legalCase.setJudgeName(JudgesName(contentStr));
-
+			
 			// 相關法條
 			legalCase.setLaw(extractAllLaws(contentStr));
 
@@ -133,7 +132,7 @@ public class BulkInsertTest {
 		// 確認正規迴圈有找到東西，如果沒找到，group_id 會保持 null
 		String group_id = null;
 		ArrayList<String> check = searchAndGetInPattern(idPattern, data);
-		if(!CollectionUtils.isEmpty(check)) {
+		if (!CollectionUtils.isEmpty(check)) {
 			group_id = check.get(0);
 		}
 		result[0] = group_id;
@@ -182,7 +181,6 @@ public class BulkInsertTest {
 		if (chineseNumber.matches("\\d+")) {
 			return Integer.parseInt(chineseNumber);
 		}
-
 		int result = 0; // 最終的結果
 		int temp = 0; // 暫時累積的部分
 		// 處理「百」、「十」、「個位數」
@@ -193,7 +191,6 @@ public class BulkInsertTest {
 				result += temp * 100;
 				chineseNumber = parts.length > 1 ? parts[1] : "";
 			}
-			
 		}
 		if (chineseNumber.contains("十")) {
 			String[] parts = chineseNumber.split("十");
@@ -241,7 +238,7 @@ public class BulkInsertTest {
 			int day = convertChineseToArabic(dateParts[2]);
 
 			// 範圍檢查
-			if (year < 2000 || year > LocalDate.now().getYear()||month < 1 || month > 12 || day < 1 || day > 31) {
+			if (year < 2000 || year > LocalDate.now().getYear() || month < 1 || month > 12 || day < 1 || day > 31) {
 				firstDateStr = dateStrList.get(1).replaceAll("中\\s*華\\s*民\\s*國\\s*|\\s+", "");
 				dateParts = firstDateStr.split("年|月|日");
 				year = convertChineseToArabic(dateParts[0]) + 1911;
@@ -297,8 +294,8 @@ public class BulkInsertTest {
 
 	// 被告姓名
 	private String DefendantName(String fullText) {
-		// 匹配 "被告" 後的 2~4 個中文字符
-		Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF]{2,3})");
+		// 匹配 "被告 受刑人" 後的 2~4 個中文字符
+		Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF○]{2,3}|[a-zA-Z]+(?: [a-zA-Z]+)*|受\\s*刑\\s*人)");
 		Matcher matcher = pattern.matcher(fullText);
 		if (matcher.find()) {
 			// 提取純粹的姓名
@@ -309,23 +306,49 @@ public class BulkInsertTest {
 
 	// 法官姓名
 	private String JudgesName(String fullText) {
-		// 定義正則表達式以匹配「法 官」後的姓名
-		// 假設姓名是2-4個中文字，並且停止於段行符號或跳脫符號
-		// 標準化空格（將全形空格替換為半形空格，並壓縮多餘空白）
-		fullText = fullText.replaceAll("\\s+", " ").replaceAll("　", " ");
+		// 標準化文本，移除多餘的空格（全形與半形）
+		String cleanedText = fullText.replaceAll("[\\s ]+", " ").replaceAll("\\s+", "").replaceAll("　", "");
+		// 定義匹配日期的正則模式 中華民國 年 月 日刑事 格式，後方 刑事可再追加其他類型
+		Pattern datePattern = Pattern.compile("華\\s*民\\s*國\\s*\\d+\\s*年\\s*\\d+\\s*月\\s*\\d+\\s*日(刑事)");
+		Matcher dateMatcher = datePattern.matcher(cleanedText);
 
-		// 定義正則表達式：匹配「法 官」後緊接的姓名，並在段行符號或標點符號前停止
-		Pattern pattern = Pattern.compile("法\\s*官\\s*([\\u4E00-\\u9FFF]{2,4})(?=\\s*[\\n\\r。，；、\\s])");
+		// 如果找到日期
+		if (dateMatcher.find()) {
+			// 截取日期後的文本
+			String textAfterDate = cleanedText.substring(dateMatcher.end()).trim();
+			// 定義匹配法官姓名的正則模式
+			Pattern judgePattern = Pattern.compile("法\\s*官\\s*([\\u4E00-\\u9FFF]{2,3})");
+			Matcher judgeMatcher = judgePattern.matcher(textAfterDate);
 
-		// 搜索匹配
-		Matcher matcher = pattern.matcher(fullText);
-		// 如果找到匹配
-		if (matcher.find()) {
-			// 提取法官姓名 (第一組匹配)
-			return matcher.group(1).trim();
+			// 如果找到法官姓名
+			if (judgeMatcher.find()) {
+				return judgeMatcher.group(1).trim();
+			} else {
+				System.err.println("未找到法官姓名");
+				return null;
+			}
+		} else {
+			// 中華民國 年 月 日刑事 的格式找不到日期的情況
+			// 第二種日期匹配模式 中華民國 年 月 日
+			Pattern datePattern2 = Pattern.compile("中\\s*華\\s*民\\s*國\\s*\\d+\\s*年\\s*\\d+\\s*月\\s*\\d+\\s*日");
+			Matcher dateMatcher2 = datePattern2.matcher(cleanedText);
+
+			if (dateMatcher2.find()) {
+				String textAfterDate2 = cleanedText.substring(dateMatcher2.end()).trim();
+				Pattern judgePattern = Pattern.compile("法\\s*官\\s*([\\u4E00-\\u9FFF]{2,3})");
+				Matcher judgeMatcher = judgePattern.matcher(textAfterDate2);
+
+				if (judgeMatcher.find()) {
+					return judgeMatcher.group(1).trim();
+				} else {
+					System.err.println("未找到法官姓名");
+					return null;
+				}
+			} else {
+				System.err.println("未找到日期模式");
+				return null;
+			}
 		}
-		// 如果未找到，返回未知
-		return "未知";
 	}
 
 	// 案件類型，如刑事(M)、民事(V)、行政(A)
