@@ -23,14 +23,14 @@ import java.util.stream.Collectors;
 public class BulkInsertTest {
 
 	@Autowired
-	CaseDao caseDao;
+	private CaseDao caseDao;
 	
-	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\金城簡易庭刑事"; // 替換為實際目錄路徑
+	// 檔案資料夾
+	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣宜蘭地方法院民事"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
 		// 初始化 ReadJson 和保存結果的列表
-		ReadJson readJson = new ReadJson();
 		List<ReadJsonVo> dataList = new ArrayList<>();
 
 		// 遍歷目錄中的所有 JSON 檔案
@@ -38,7 +38,7 @@ public class BulkInsertTest {
 				.filter(path -> path.toString().endsWith(".json")) // 篩選 JSON 檔案
 				.forEach(file -> {
 					// 讀取 JSON 文件，並添加到 dataList
-					ReadJsonVo data = readJson.readJsonByPath(file.toAbsolutePath().toString());
+					ReadJsonVo data = ReadJson.readJsonByPath(file.toAbsolutePath().toString());
 					if (data != null) {
 						dataList.add(data);
 					}
@@ -80,7 +80,7 @@ public class BulkInsertTest {
 			legalCase.setLaw(extractAllLaws(contentStr));
 			
 			// 案件類型，如刑事、民事、行政
-			legalCase.setDocType(CaseType(data));
+			legalCase.setCaseType(CaseType(data));
 			
 			// 文件類型，裁定或判決或釋字等
 			legalCase.setDocType(DocType(contentStr));

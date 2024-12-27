@@ -2,6 +2,8 @@ package SmartLegalSearch.readJson;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -15,12 +17,13 @@ public class ReadJson {
      * @param filePosition 檔案的絕對路徑
      * @return ReadJsonVo 如果文件正確轉換；否則返回 null
      */
-    public ReadJsonVo readJsonByPath(String filePosition) {
+    public static ReadJsonVo readJsonByPath(String filePosition) {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            // 讀取 JSON 檔案並轉換為 ReadJsonVo 類別
-            File file = new File(filePosition);
-            ReadJsonVo data = objectMapper.readValue(file, ReadJsonVo.class);
+        	// 讀取 JSON 檔案並轉換為 ReadJsonVo 類別
+        	String rawJson = new String(Files.readAllBytes(Paths.get(filePosition)), "UTF-8");
+        	rawJson = rawJson.replaceAll("\\s", "");
+            ReadJsonVo data = objectMapper.readValue(rawJson, ReadJsonVo.class);
             return data;
         } catch (IOException e) {
             System.err.println("Error reading JSON file at: " + filePosition);
