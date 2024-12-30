@@ -33,6 +33,9 @@ public class LegalCase { // 刑事案件
 	@Column(name = "content")
 	private String content; // 判決內容
 
+	@Column(name = "content2")
+	private String content2; // 判決內容
+
 	@Column(name = "defendant_name")
 	private String defendantName; // 被告姓名
 
@@ -49,10 +52,12 @@ public class LegalCase { // 刑事案件
 	private String docType; // 文件類型，裁定或判決或釋字等
 
 	public LegalCase() {
+		super();
 	}
 
 	public LegalCase(String groupId, String id, String court, LocalDate verdictDate, String url, String charge,
-			String content, String defendantName, String judgeName, String law, String caseType, String docType) {
+			String content, String content2, String defendantName, String judgeName, String law, String caseType,
+			String docType) {
 		super();
 		this.groupId = groupId;
 		this.id = id;
@@ -61,6 +66,7 @@ public class LegalCase { // 刑事案件
 		this.url = url;
 		this.charge = charge;
 		this.content = content;
+		this.content2 = content2;
 		this.defendantName = defendantName;
 		this.judgeName = judgeName;
 		this.law = law;
@@ -72,92 +78,100 @@ public class LegalCase { // 刑事案件
 		return groupId;
 	}
 
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
-
 	public String getId() {
 		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	public String getCourt() {
 		return court;
 	}
 
-	public void setCourt(String court) {
-		this.court = court;
-	}
-
 	public LocalDate getVerdictDate() {
 		return verdictDate;
-	}
-
-	public void setVerdictDate(LocalDate verdictDate) {
-		this.verdictDate = verdictDate;
 	}
 
 	public String getUrl() {
 		return url;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
 	public String getCharge() {
 		return charge;
-	}
-
-	public void setCharge(String charge) {
-		this.charge = charge;
 	}
 
 	public String getContent() {
 		return content;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
+	public String getContent2() {
+		return content2;
 	}
 
 	public String getDefendantName() {
 		return defendantName;
 	}
 
-	public void setDefendantName(String defendantName) {
-		this.defendantName = defendantName;
-	}
-
 	public String getJudgeName() {
 		return judgeName;
-	}
-
-	public void setJudgeName(String judgeName) {
-		this.judgeName = judgeName;
 	}
 
 	public String getLaw() {
 		return law;
 	}
 
-	public void setLaw(String law) {
-		this.law = law;
-	}
-
 	public String getCaseType() {
 		return caseType;
 	}
 
-	public void setCaseType(String caseType) {
-		this.caseType = caseType;
-	}
-
 	public String getDocType() {
 		return docType;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public void setCourt(String court) {
+		this.court = court;
+	}
+
+	public void setVerdictDate(LocalDate verdictDate) {
+		this.verdictDate = verdictDate;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public void setCharge(String charge) {
+		this.charge = charge;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setContent2(String content2) {
+		this.content2 = content2;
+	}
+
+	public void setDefendantName(String defendantName) {
+		this.defendantName = defendantName;
+	}
+
+	public void setJudgeName(String judgeName) {
+		this.judgeName = judgeName;
+	}
+
+	public void setLaw(String law) {
+		this.law = law;
+	}
+
+	public void setCaseType(String caseType) {
+		this.caseType = caseType;
 	}
 
 	public void setDocType(String docType) {
