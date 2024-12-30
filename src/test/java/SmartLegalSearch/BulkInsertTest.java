@@ -29,6 +29,7 @@ public class BulkInsertTest {
 
 	// 檔案資料夾
 	private String folderPath = "D:\\JavaProject\\202405\\臺灣臺中地方法院刑事"; // 替換為實際目錄路徑
+//	private String folderPath = "D:\\JavaProject\\202405"; // 子路由遍讀歷 路徑
 	// 單筆測試
 //	private String folderPath = "D:\\JavaProject\\202405\\臺灣臺中地方法院刑事\\TCDM,112,附民,2024,20240530,1.json"; // 替換為實際目錄路徑
 
