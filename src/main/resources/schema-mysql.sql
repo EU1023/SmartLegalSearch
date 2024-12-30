@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `legal_case` (
   `court` varchar(25) NOT NULL,
   `verdict_date` date DEFAULT NULL,
   `url` varchar(500) DEFAULT NULL,
-  `charge` text,
+  `charge` varchar(500) DEFAULT NULL,
   `judge_name` varchar(50) DEFAULT NULL,
   `defendant_name` varchar(50) DEFAULT NULL,
   `content` longtext,
