@@ -28,9 +28,9 @@ public class BulkInsertTest {
 	private CaseDao caseDao;
 
 	// 檔案資料夾
-	private String folderPath = "D:\\JavaProject\\202405\\臺灣彰化地方法院刑事"; // 替換為實際目錄路徑
-	// 單筆
-//	private String folderPath = "D:\\JavaProject\\202405\\臺灣彰化地方法院刑事\\CHDM,113,簡上,14,20240529,1.json"; // 替換為實際目錄路徑
+	private String folderPath = "D:\\JavaProject\\202405\\臺灣臺中地方法院刑事"; // 替換為實際目錄路徑
+	// 單筆測試
+//	private String folderPath = "D:\\JavaProject\\202405\\臺灣臺中地方法院刑事\\TCDM,112,附民,2024,20240530,1.json"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
@@ -294,13 +294,29 @@ public class BulkInsertTest {
 
 	// 被告姓名
 	private String DefendantName(String fullText) {
-		// 匹配 "被告 受刑人" 後的 2~4 個中文字符
-		Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF○]{2,3}|[a-zA-Z]+(?: [a-zA-Z]+)*|受\\s*刑\\s*人)");
-		Matcher matcher = pattern.matcher(fullText);
-		if (matcher.find()) {
-			// 提取純粹的姓名
-			return matcher.group(1).trim();
-		}
+//		String cleanedText = fullText.replaceAll("[\\s ]+", "");
+//		System.out.println(fullText);
+		 // 正則表達式匹配多種角色名稱，並適配正規化後的文本
+		Pattern pattern = Pattern.compile(//
+		        "受刑人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" + //
+		        "被告\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" +//
+		        "被移送人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" +//
+		        "扣押人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" +//
+		        "即被告\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" +//
+		        "受處分人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)"//
+		    );
+
+		// 搜索匹配
+	    Matcher matcher = pattern.matcher(fullText);
+
+	    if (matcher.find()) {
+	        // 判斷哪個捕獲群組匹配成功
+	        for (int i = 1; i <= 6; i++) { // 共有 6 個捕獲群組
+	            if (matcher.group(i) != null) {
+	                return matcher.group(i).trim();
+	            }
+	        }
+	    }
 		return "未知";
 	}
 
@@ -324,8 +340,9 @@ public class BulkInsertTest {
 			if (judgeMatcher.find()) {
 				return judgeMatcher.group(1).trim();
 			} else {
+				System.err.println(fullText);
 				System.err.println("未找到法官姓名");
-				return null;
+				return "未知";
 			}
 		} else {
 			// 中華民國 年 月 日刑事 的格式找不到日期的情況
@@ -341,8 +358,9 @@ public class BulkInsertTest {
 				if (judgeMatcher.find()) {
 					return judgeMatcher.group(1).trim();
 				} else {
+					System.err.println(fullText);
 					System.err.println("未找到法官姓名");
-					return null;
+					return "未知";
 				}
 			} else {
 				System.err.println("未找到日期模式");
