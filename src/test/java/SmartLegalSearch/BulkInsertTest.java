@@ -28,7 +28,7 @@ public class BulkInsertTest {
 	private CaseDao caseDao;
 
 	// 檔案資料夾
-	private String folderPath = "C:\\Users\\user\\Desktop\\202405\\臺灣宜蘭地方法院刑事"; // 替換為實際目錄路徑
+	private String folderPath = "C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {

@@ -4,7 +4,8 @@ public enum ResMessage {
 	// 格式: 全大寫英文(code, message);
 	SUCCESS(200, "Success!!"),//
 	DATE_ERROR(400, "Date error!!"),//
-	EMAIL_DUPLICATED(400, "Email duplicated!!");
+	EMAIL_DUPLICATED(400, "Email duplicated!!"),
+	EMAIL_SEND_FAILED(400, "Email send failed!!");
 
 	private int code;
 

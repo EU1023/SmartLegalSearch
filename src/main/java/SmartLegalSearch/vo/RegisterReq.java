@@ -6,18 +6,18 @@ import jakarta.validation.constraints.Size;
 
 public class RegisterReq {
 
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email cannot be blank.")
+    @Email(message = "Invalid email format.")
     private String email;
 
-    @NotBlank(message = "Name cannot be blank")
-    @Size(min = 2, max = 25, message = "Name must be between 2 and 25 characters")
+    @NotBlank(message = "Name cannot be blank.")
+    @Size(min = 2, max = 25, message = "Name must be between 2 and 25 characters.")
     private String name; // 最少2個字，最多25個字
 
-    @NotBlank(message = "Password cannot be blank")
+    @NotBlank(message = "Password cannot be blank.")
     private String password;
 
-    @NotBlank(message = "Role cannot be blank")
+    @NotBlank(message = "Role cannot be blank.")
     private String role;
 
     private String identity;

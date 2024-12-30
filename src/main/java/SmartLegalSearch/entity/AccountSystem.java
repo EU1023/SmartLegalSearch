@@ -37,7 +37,6 @@ public class AccountSystem {
     @Column(name = "token_expiry")
     private LocalDateTime tokenExpiry; // 儲存 token 過期時間
 
-
     public AccountSystem() {
     }
 
