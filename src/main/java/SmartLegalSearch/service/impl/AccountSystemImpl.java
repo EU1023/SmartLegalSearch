@@ -54,15 +54,15 @@ public class AccountSystemImpl implements AccountSystemService {
         newUser.setEmailVerificationToken(verificationToken);
         newUser.setTokenExpiry(tokenExpiry);
 
-        // 保存到資料庫
-        accountSystemDao.save(newUser);
-
         // 寄送驗證 email
         try {
             sendVerificationEmail(req.getEmail(), verificationToken);
         } catch (Exception e) {
             return new RegisterRes(ResMessage.EMAIL_SEND_FAILED.getCode(), ResMessage.EMAIL_SEND_FAILED.getMessage());
         }
+
+        // 保存到資料庫
+        accountSystemDao.save(newUser);
 
         return new RegisterRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage(),
                 req.getEmail(), RegisterRes.RegisterStatus.EMAIL_VERIFICATION_PENDING);
@@ -188,6 +188,5 @@ public class AccountSystemImpl implements AccountSystemService {
 
         return new BasicRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage());
     }
-
 
 }

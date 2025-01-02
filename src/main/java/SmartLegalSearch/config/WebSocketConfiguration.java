@@ -1,4 +1,4 @@
-package SmartLegalSearch.Configuration;
+package SmartLegalSearch.config;
 
 public class WebSocketConfiguration    {
 
