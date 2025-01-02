@@ -21,7 +21,7 @@ public class SingleInsetTest {
 
 	@Test
 	public void test() {
-		ReadJsonVo res = ReadJson.readJsonByPath("C:\\Users\\user\\Desktop\\202405\\臺灣士林地方法院刑事\\SLDM,111,金訴,276,20240514,1.json");
+		ReadJsonVo res = ReadJson.readJsonByPath("C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事\\KLDM,112,金訴,606,20240506,1.json");
 	}
 
 	private ArrayList<String> readJson1Test(String pattern, ReadJsonVo data) {
