@@ -4,12 +4,12 @@ import SmartLegalSearch.constants.ResMessage;
 import SmartLegalSearch.entity.AccountSystem;
 import SmartLegalSearch.repository.AccountSystemDao;
 import SmartLegalSearch.service.ifs.AccountSystemService;
-import SmartLegalSearch.vo.BasicRes;
-import SmartLegalSearch.vo.LoginReq;
-import SmartLegalSearch.vo.RegisterReq;
-import SmartLegalSearch.vo.RegisterRes;
+import SmartLegalSearch.vo.*;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -33,6 +33,8 @@ public class AccountSystemImpl implements AccountSystemService {
     @Autowired
     private JavaMailSender mailSender; // 注入的內容在 properties
 
+    // 註冊
+    @Transactional
     @Override
     public RegisterRes register(RegisterReq req) {
         // 檢查 email是否有存在
@@ -66,6 +68,7 @@ public class AccountSystemImpl implements AccountSystemService {
                 req.getEmail(), RegisterRes.RegisterStatus.EMAIL_VERIFICATION_PENDING);
     }
 
+    // 寄送身分驗證 email
     @Override
     public void sendVerificationEmail(String receiver, String token) {
         try {
@@ -86,8 +89,10 @@ public class AccountSystemImpl implements AccountSystemService {
         }
     }
 
+    // 根據 token 驗證 email
+    @Transactional
     @Override
-    public ResponseEntity<String> verifyEmail(String token) {
+    public ResponseEntity<String> verifyEmail(String token, HttpSession session) {
         // 根據 token 查找用戶
         AccountSystem user = accountSystemDao.findByEmailVerificationToken(token);
         if (user == null) {
@@ -106,12 +111,27 @@ public class AccountSystemImpl implements AccountSystemService {
         user.setTokenExpiry(null);
         accountSystemDao.save(user);
 
-        // 若成功，返回200及 Email verified.
-        return ResponseEntity.ok("Email verified.");
+        // 設置 session 狀態
+        session.setAttribute("role", user.getRole());
+        session.setMaxInactiveInterval(3600); // 60分鐘
+
+        // 若驗證成功，重新導向到註冊帳號的網址
+        String redirectUrl = "https://www.youtube.com/@HoshimachiSuisei";
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY) // HTTP 301永久導向
+                .header(HttpHeaders.LOCATION, redirectUrl)
+                .build();
     }
 
+    // 登入
     @Override
-    public BasicRes login(LoginReq req) {
+    public BasicRes login(LoginReq req,  HttpSession session) {
+        // 檢查是否已有登入
+        String attr = (String) session.getAttribute("role");
+        if (attr != null) {
+            return new BasicRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage());
+        }
+
+        // 取得使用者資料
         AccountSystem user = accountSystemDao.findByEmail(req.getEmail());
 
         // 檢查 email 是否存在及被驗證
@@ -123,6 +143,48 @@ public class AccountSystemImpl implements AccountSystemService {
         if (!(passwordEncoder.matches(req.getPassword(), user.getPassword()))) {
             return new BasicRes(ResMessage.PASSWORD_ERROR.getCode(), ResMessage.PASSWORD_ERROR.getMessage());
         }
+
+        // 若登入成功，設定 session 的 attribute 和有效時間
+        session.setAttribute("role", user.getRole());
+        session.setMaxInactiveInterval(3600); // 60分鐘
+
+        return new BasicRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage());
+    }
+
+    // 登出
+    @Override
+    public BasicRes logout(HttpSession session) {
+        // 檢查是否為登入狀態
+        String attr = (String) session.getAttribute("role");
+        if (attr == null) {
+            return new BasicRes(ResMessage.NOT_FOUND.getCode(), ResMessage.NOT_FOUND.getMessage());
+        }
+
+        // 若為登入狀態，則使 session 失效
+        session.invalidate();
+
+        return new BasicRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage());
+    }
+
+    // 更新用戶資訊
+    @Transactional
+    @Override
+    public BasicRes updateInfo(UpdateInfoReq req, HttpSession session) {
+        // 檢查是否為登入狀態
+        String attr = (String) session.getAttribute("role");
+        if (attr == null) {
+            return new BasicRes(ResMessage.NOT_FOUND.getCode(), ResMessage.NOT_FOUND.getMessage());
+        }
+
+        // 更新用戶身分、姓名、電話
+        AccountSystem user = accountSystemDao.findByEmail(req.getEmail());
+        user.setRole(req.getRole());
+        user.setName(req.getName());
+        user.setPhone(req.getPhone());
+
+        // 若登入成功，設定 session 的 attribute 和有效時間
+        session.setAttribute("role", user.getRole());
+        session.setMaxInactiveInterval(3600); // 60分鐘
 
         return new BasicRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage());
     }

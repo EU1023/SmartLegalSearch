@@ -3,7 +3,9 @@ package SmartLegalSearch.repository;
 import SmartLegalSearch.entity.AccountSystem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface AccountSystemDao extends JpaRepository<AccountSystem, Integer> {
 
     // 查詢 email是否有存在

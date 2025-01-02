@@ -19,12 +19,11 @@ CREATE TABLE IF NOT EXISTS `legal_case` (
 
 CREATE TABLE IF NOT EXISTS `account_system` (
   `email` varchar(100) NOT NULL,
-  `name` varchar(25) NOT NULL,
+  `name` varchar(25) NOT NULL DEFAULT 'guest',
   `password` varchar(100) NOT NULL,
   `email_verified` tinyint(1) NOT NULL DEFAULT '0',
-  `role` varchar(25) NOT NULL DEFAULT 'user',
-  `identity` varchar(25) DEFAULT NULL,
-  `phone` varchar(25) DEFAULT NULL,
+  `role` varchar(25) NOT NULL DEFAULT 'guest',
+  `phone` varchar(25) NOT NULL DEFAULT '0',
   `email_verification_token` varchar(255) DEFAULT NULL,
   `token_expiry` datetime DEFAULT NULL,
   PRIMARY KEY (`email`)
