@@ -22,13 +22,8 @@ public class AccountSystemController {
 
     // 註冊的路徑為 /accountSystem/register
     @PostMapping("register")
-<<<<<<< Updated upstream
     public RegisterRes register(@Valid @RequestBody RegisterReq req) {
         return accountSystemService.register(req);
-=======
-    public RegisterRes register(RegisterReq req) {
-        return null;
->>>>>>> Stashed changes
     }
 
     // 驗證 email 的路徑為 /accountSystem/verify-email

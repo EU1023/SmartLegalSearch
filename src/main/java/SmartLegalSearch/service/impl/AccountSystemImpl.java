@@ -10,15 +10,11 @@ import SmartLegalSearch.vo.RegisterReq;
 import SmartLegalSearch.vo.RegisterRes;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
-<<<<<<< Updated upstream
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-=======
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
->>>>>>> Stashed changes
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,13 +27,8 @@ public class AccountSystemImpl implements AccountSystemService {
     @Autowired
     private AccountSystemDao accountSystemDao;
 
-<<<<<<< Updated upstream
     @Autowired
     private BCryptPasswordEncoder passwordEncoder; // 密碼加密
-=======
-//    @Autowired
-//    private BCryptPasswordEncoder passwordEncoder;
->>>>>>> Stashed changes
 
     @Autowired
     private JavaMailSender mailSender; // 注入的內容在 properties
@@ -52,26 +43,14 @@ public class AccountSystemImpl implements AccountSystemService {
         // 創建新帳戶
         AccountSystem newUser = new AccountSystem();
         newUser.setEmail(req.getEmail());
-<<<<<<< Updated upstream
         newUser.setPassword(passwordEncoder.encode(req.getPassword()));
-=======
-        newUser.setName(req.getName());
-//        newUser.setPassword(passwordEncoder.encode(req.getPassword()));
-        newUser.setPhone(req.getPhone());
-        newUser.setRole(req.getRole());
-        newUser.setIdentity(req.getIdentity());
->>>>>>> Stashed changes
         newUser.setEmailVerified(false);
 
         // 生成驗證 token 和驗證時間(15分鐘)
         String verificationToken = UUID.randomUUID().toString();
         LocalDateTime tokenExpiry = LocalDateTime.now().plusMinutes(15);
         newUser.setEmailVerificationToken(verificationToken);
-<<<<<<< Updated upstream
         newUser.setTokenExpiry(tokenExpiry);
-=======
-
->>>>>>> Stashed changes
 
         // 保存到資料庫
         accountSystemDao.save(newUser);
