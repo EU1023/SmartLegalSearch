@@ -1,5 +1,7 @@
 package SmartLegalSearch.service.ifs;
 
+import SmartLegalSearch.vo.BasicRes;
+import SmartLegalSearch.vo.LoginReq;
 import SmartLegalSearch.vo.RegisterReq;
 import SmartLegalSearch.vo.RegisterRes;
 import org.springframework.http.ResponseEntity;
@@ -14,4 +16,7 @@ public interface AccountSystemService {
 
     // 根據 token 驗證 email
     ResponseEntity<String> verifyEmail(String token);
+
+    // 註冊
+    BasicRes login(LoginReq req);
 }

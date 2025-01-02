@@ -4,6 +4,8 @@ import SmartLegalSearch.constants.ResMessage;
 import SmartLegalSearch.entity.AccountSystem;
 import SmartLegalSearch.repository.AccountSystemDao;
 import SmartLegalSearch.service.ifs.AccountSystemService;
+import SmartLegalSearch.vo.BasicRes;
+import SmartLegalSearch.vo.LoginReq;
 import SmartLegalSearch.vo.RegisterReq;
 import SmartLegalSearch.vo.RegisterRes;
 import jakarta.mail.internet.MimeMessage;
@@ -40,11 +42,7 @@ public class AccountSystemImpl implements AccountSystemService {
         // 創建新帳戶
         AccountSystem newUser = new AccountSystem();
         newUser.setEmail(req.getEmail());
-        newUser.setName(req.getName());
         newUser.setPassword(passwordEncoder.encode(req.getPassword()));
-        newUser.setPhone(req.getPhone());
-        newUser.setRole(req.getRole());
-        newUser.setIdentity(req.getIdentity());
         newUser.setEmailVerified(false);
 
         // 生成驗證 token 和驗證時間(15分鐘)
@@ -64,7 +62,7 @@ public class AccountSystemImpl implements AccountSystemService {
         }
 
         return new RegisterRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage(),
-                req.getEmail(), req.getName(), RegisterRes.RegisterStatus.EMAIL_VERIFICATION_PENDING, req.getRole());
+                req.getEmail(), RegisterRes.RegisterStatus.EMAIL_VERIFICATION_PENDING);
     }
 
     @Override
@@ -110,4 +108,23 @@ public class AccountSystemImpl implements AccountSystemService {
         // 若成功，返回200及 Email verified.
         return ResponseEntity.ok("Email verified.");
     }
+
+    @Override
+    public BasicRes login(LoginReq req) {
+        AccountSystem user = accountSystemDao.findByEmail(req.getEmail());
+
+        // 檢查 email 是否存在及被驗證
+        if (user == null || !user.isEmailVerified()) {
+            return new BasicRes(ResMessage.NOT_FOUND.getCode(), ResMessage.NOT_FOUND.getMessage());
+        }
+
+        // 核對密碼
+        if (!(passwordEncoder.matches(req.getPassword(), user.getPassword()))) {
+            return new BasicRes(ResMessage.PASSWORD_ERROR.getCode(), ResMessage.PASSWORD_ERROR.getMessage());
+        }
+
+        return new BasicRes(ResMessage.SUCCESS.getCode(), ResMessage.SUCCESS.getMessage());
+    }
+
+
 }

@@ -17,8 +17,7 @@ public class AccountSystemTest {
 
     @Test
     public void testRegister() {
-        RegisterReq req = new RegisterReq("abc@gmail.com", "abc", "abc123",
-                "user", "", "");
+        RegisterReq req = new RegisterReq("abc@gmail.com","abc123");
 
         RegisterRes res = accountSystemService.register(req);
 
