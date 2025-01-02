@@ -21,10 +21,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	// security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+	// implementation 'org.springframework.boot:spring-boot-starter-security'
 	// jpa
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// mysql connectoor
+	// mysql connector
 	implementation 'com.mysql:mysql-connector-j'
 	// 資料驗證
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -36,11 +36,11 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
 	// mybatis plus
 	implementation 'com.baomidou:mybatis-plus-spring-boot3-starter:3.5.9'
-	// Spring Boot Starter WebSocket » 3.4.1
-	implementation 'org.springframework.boot:spring-boot-starter-websocket:3.4.1'
-	
-	
-	
+	// mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }

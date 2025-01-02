@@ -3,7 +3,7 @@ package SmartLegalSearch.vo;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public class RegisterReq {
+public class LoginReq {
 
     @NotBlank(message = "Email cannot be blank.")
     @Email(message = "Invalid email format.")
@@ -12,10 +12,10 @@ public class RegisterReq {
     @NotBlank(message = "Password cannot be blank.")
     private String password;
 
-    public RegisterReq() {
+    public LoginReq() {
     }
 
-    public RegisterReq(String email, String password) {
+    public LoginReq(String email, String password) {
         this.email = email;
         this.password = password;
     }
