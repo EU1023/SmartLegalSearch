@@ -28,7 +28,10 @@ public class BulkInsertTest {
 	private CaseDao caseDao;
 
 	// 檔案資料夾
-	private String folderPath = "C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事"; // 替換為實際目錄路徑
+//	private String folderPath = "D:\\JavaProject\\202405\\臺灣臺中地方法院刑事"; // 替換為實際目錄路徑
+	private String folderPath = "C:\\Users\\mm312\\Downloads\\臺灣基隆地方法院刑事"; // 子路由遍讀歷 路徑
+	// 單筆測試
+//	private String folderPath = "D:\\JavaProject\\202405\\臺灣臺中地方法院刑事\\TCDM,110,附民,460,20240529,1.json"; // 替換為實際目錄路徑
 
 	@Test
 	public void test() throws IOException {
@@ -56,6 +59,7 @@ public class BulkInsertTest {
 			LegalCase legalCase = new LegalCase();
 			String[] courtAndCharge = courtAndCharge(data);
 
+			System.out.println(data.getId());
 			// id 案號
 			legalCase.setGroupId(courtAndCharge[1]);
 			legalCase.setId(courtAndCharge[1]);
@@ -73,14 +77,17 @@ public class BulkInsertTest {
 			legalCase.setUrl(httpUrl(data));
 
 			// 判決內容
-			legalCase.setContent(contentStr);
+			legalCase.setContent(mainContent(contentStr));
+
+			// 判決內容(附表以下)
+			legalCase.setContent2(mainContent2(contentStr));
 
 			// 被告姓名
 			legalCase.setDefendantName(DefendantName(contentStr));
 
 			// 法官姓名
 			legalCase.setJudgeName(JudgesName(contentStr));
-			
+
 			// 相關法條
 			legalCase.setLaw(extractAllLaws(contentStr));
 
@@ -95,6 +102,7 @@ public class BulkInsertTest {
 		caseDao.saveAll(legalCaseList);
 	}
 
+// 	處理內容正規化表達===========================================================================
 	private ArrayList<String> searchAndGetInPattern(String pattern, ReadJsonVo data) {
 		// 整理文章中多餘空格(一般空白、全形空白)跟跳脫符號 : 會沒辦法用 matcher
 		String cleanContent = data.getFull().replaceAll("[\\r|\\n|\\s|'　']+", "");
@@ -119,58 +127,6 @@ public class BulkInsertTest {
 //			System.out.println(item);
 //		});
 		return lowList;
-	}
-
-	// 群組案號、唯一案號、審理法院、案由
-	private String[] courtAndCharge(ReadJsonVo data) {
-		String[] result = new String[4]; // 用於存放案號、法院代號、案由
-
-		// 群組案號
-		String idPattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
-		// 確認正規迴圈有找到東西，如果沒找到，group_id 會保持 null
-		String group_id = null;
-		ArrayList<String> check = searchAndGetInPattern(idPattern, data);
-		if (!CollectionUtils.isEmpty(check)) {
-			group_id = check.get(0);
-		}
-		result[0] = group_id;
-		// ==========================================
-		// 唯一案號的處理
-		String jid = data.getId(); // 假設 data.getJID() 返回 JSON 中的 "JID" 欄位
-		if (jid != null && !jid.isEmpty()) {
-			// 定義更靈活的正則模式，匹配案件類型和日期時間編號
-			String uniqueIdPattern = "([一-龥\\w]+),\\s*(\\d+),\\s*(\\d{8}),\\s*(\\d+)$";
-			Matcher matcher = Pattern.compile(uniqueIdPattern).matcher(jid);
-			if (matcher.find()) {
-				String caseType = matcher.group(1); // 案件類型（例如 金訴 或 訴 等）
-				String uniqueId = matcher.group(2); // 唯一案號編號
-				String date = matcher.group(3); // 日期（例如 20240516）
-				String finalNumber = matcher.group(4); // 最後的數字編號（例如 1 或 2）
-				// 在文中組合查找對應的唯一案號
-				String specificCasePattern = "([一二三四五六七八九十]|\\d){2,4}年度" + caseType + "字第" + uniqueId + "號";
-				List<String> matchedCases = searchAndGetInPattern(specificCasePattern, data);
-				if (!matchedCases.isEmpty()) {
-					result[1] = matchedCases.get(0); // 取匹配到的第一個案號
-				} else {
-					result[1] = "未找到符合的唯一案號";
-				}
-			} else {
-				result[1] = "未能從 JID 提取唯一案號相關資訊";
-			}
-		} else {
-			result[1] = "JID 欄位為空";
-		}
-
-		// ==========================================
-		// 審理法院
-		String court = data.getId().substring(0, 3);
-		result[2] = court;
-
-		// 案由
-		String charge = data.getTitle();
-		result[3] = charge;
-
-		return result; // 回傳結果
 	}
 
 	// 中文數字轉數字
@@ -218,6 +174,78 @@ public class BulkInsertTest {
 		return value;
 	}
 
+	// 方法：將文件內文中的中文數字轉換為阿拉伯數字
+	private String convertTextChineseNumbers(String text) {
+		// 匹配中文數字的正則表達式（針對 "第十四條" 和 "第十四項" 等格式）
+		Pattern pattern = Pattern.compile("第([一二三四五六七八九十百零]+)(條|項)");
+		Matcher matcher = pattern.matcher(text);
+		// 用於存放轉換後的結果
+		StringBuffer result = new StringBuffer();
+		// 遍歷匹配的中文數字
+		while (matcher.find()) {
+			String chineseNumber = matcher.group(1); // 提取中文數字部分
+			int arabicNumber = convertChineseToArabic(chineseNumber); // 轉換為阿拉伯數字
+			String replacement = "第" + arabicNumber + matcher.group(2); // 組合成替換後的字符串
+			matcher.appendReplacement(result, replacement); // 替換匹配到的部分
+		}
+		matcher.appendTail(result); // 添加剩餘部分
+		return result.toString();
+	}
+
+//	=======================================================================================
+
+	// 群組案號、唯一案號、審理法院、案由
+	private String[] courtAndCharge(ReadJsonVo data) {
+		String[] result = new String[4]; // 用於存放案號、法院代號、案由
+
+		// 群組案號
+		String idPattern = "([一二三四五六七八九十]|\\d){2,4}年度(.){1,6}字第([一二三四五六七八九十]|\\d){1,5}號";
+		// 確認正規迴圈有找到東西，如果沒找到，group_id 會保持 null
+		String group_id = null;
+		ArrayList<String> check = searchAndGetInPattern(idPattern, data);
+		if (!CollectionUtils.isEmpty(check)) {
+			group_id = check.get(0);
+		}
+		result[0] = group_id;
+		// ==========================================
+		// 唯一案號的處理
+		String jid = data.getId(); // 假設 data.getJID() 返回 JSON 中的 "JID" 欄位
+		if (jid != null && !jid.isEmpty()) {
+			// 定義更靈活的正則模式，匹配案件類型和日期時間編號
+			String uniqueIdPattern = "([一-龥\\w]+),\\s*(\\d+),\\s*(\\d{8}),\\s*(\\d+)$";
+			Matcher matcher = Pattern.compile(uniqueIdPattern).matcher(jid);
+			if (matcher.find()) {
+				String caseType = matcher.group(1); // 案件類型（例如 金訴 或 訴 等）
+				String uniqueId = matcher.group(2); // 唯一案號編號
+//					String date = matcher.group(3); // 日期（例如 20240516）
+//					String finalNumber = matcher.group(4); // 最後的數字編號（例如 1 或 2）
+				// 在文中組合查找對應的唯一案號
+				String specificCasePattern = "([一二三四五六七八九十]|\\d){2,4}年度" + caseType + "字第" + uniqueId + "號";
+				List<String> matchedCases = searchAndGetInPattern(specificCasePattern, data);
+				if (!matchedCases.isEmpty()) {
+					result[1] = matchedCases.get(0); // 取匹配到的第一個案號
+				} else {
+					result[1] = "未找到符合的唯一案號";
+				}
+			} else {
+				result[1] = "未能從 JID 提取唯一案號相關資訊";
+			}
+		} else {
+			result[1] = "JID 欄位為空";
+		}
+
+		// ==========================================
+		// 審理法院
+		String court = data.getId().substring(0, 3);
+		result[2] = court;
+
+		// 案由
+		String charge = data.getTitle();
+		result[3] = charge;
+
+		return result; // 回傳結果
+	}
+
 	// 判決日期
 	private LocalDate verdictDate(ReadJsonVo data) {
 		// 匹配日期段落
@@ -225,7 +253,8 @@ public class BulkInsertTest {
 		ArrayList<String> dateStrList = searchAndGetInPattern(pattern, data);
 
 		if (dateStrList.isEmpty()) {
-			throw new IllegalArgumentException("未找到符合格式的判決日期！");
+//			throw new IllegalArgumentException("未找到符合格式的判決日期！: " + data.getId());
+			return null;
 		}
 
 		try {
@@ -248,26 +277,9 @@ public class BulkInsertTest {
 			// 回傳 LocalDate 物件
 			return LocalDate.of(year, month, day);
 		} catch (Exception e) {
-			throw new RuntimeException("解析判決日期時發生錯誤: " + e.getMessage());
+			return null;
+//			throw new RuntimeException("解析判決日期時發生錯誤: " + e.getMessage());
 		}
-	}
-
-	// 方法：將文件內文中的中文數字轉換為阿拉伯數字
-	private String convertTextChineseNumbers(String text) {
-		// 匹配中文數字的正則表達式（針對 "第十四條" 和 "第十四項" 等格式）
-		Pattern pattern = Pattern.compile("第([一二三四五六七八九十百零]+)(條|項)");
-		Matcher matcher = pattern.matcher(text);
-		// 用於存放轉換後的結果
-		StringBuffer result = new StringBuffer();
-		// 遍歷匹配的中文數字
-		while (matcher.find()) {
-			String chineseNumber = matcher.group(1); // 提取中文數字部分
-			int arabicNumber = convertChineseToArabic(chineseNumber); // 轉換為阿拉伯數字
-			String replacement = "第" + arabicNumber + matcher.group(2); // 組合成替換後的字符串
-			matcher.appendReplacement(result, replacement); // 替換匹配到的部分
-		}
-		matcher.appendTail(result); // 添加剩餘部分
-		return result.toString();
 	}
 
 	// 提取全文中所有法條的方法
@@ -292,12 +304,28 @@ public class BulkInsertTest {
 
 	// 被告姓名
 	private String DefendantName(String fullText) {
-		// 匹配 "被告 受刑人" 後的 2~4 個中文字符
-		Pattern pattern = Pattern.compile("被告([\\u4E00-\\u9FFF○]{2,3}|[a-zA-Z]+(?: [a-zA-Z]+)*|受\\s*刑\\s*人)");
+//		String cleanedText = fullText.replaceAll("[\\s ]+", "");
+//		System.out.println(fullText);
+		// 正則表達式匹配多種角色名稱，並適配正規化後的文本
+		Pattern pattern = Pattern.compile(//
+				"受刑人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" + //
+						"被告\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" + //
+						"被移送人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" + //
+						"扣押人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" + //
+						"即被告\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)|" + //
+						"受處分人\\s*([\\p{IsHan}○]{2,4}|[a-zA-Z]+(?: [a-zA-Z]+)*)"//
+		);
+
+		// 搜索匹配
 		Matcher matcher = pattern.matcher(fullText);
+
 		if (matcher.find()) {
-			// 提取純粹的姓名
-			return matcher.group(1).trim();
+			// 判斷哪個捕獲群組匹配成功
+			for (int i = 1; i <= 6; i++) { // 共有 6 個捕獲群組
+				if (matcher.group(i) != null) {
+					return matcher.group(i).trim();
+				}
+			}
 		}
 		return "未知";
 	}
@@ -322,8 +350,9 @@ public class BulkInsertTest {
 			if (judgeMatcher.find()) {
 				return judgeMatcher.group(1).trim();
 			} else {
+				System.err.println(fullText);
 				System.err.println("未找到法官姓名");
-				return null;
+				return "未知";
 			}
 		} else {
 			// 中華民國 年 月 日刑事 的格式找不到日期的情況
@@ -339,8 +368,9 @@ public class BulkInsertTest {
 				if (judgeMatcher.find()) {
 					return judgeMatcher.group(1).trim();
 				} else {
+					System.err.println(fullText);
 					System.err.println("未找到法官姓名");
-					return null;
+					return "未知";
 				}
 			} else {
 				System.err.println("未找到日期模式");
@@ -404,4 +434,28 @@ public class BulkInsertTest {
 		return "https://judgment.judicial.gov.tw/FJUD/data.aspx?ty=JD&id=" + encodedId;
 	}
 
+	// 附表之前的內容
+	private String mainContent(String fullText) {
+		// 匹配「中華民國 年 月 日」
+		Pattern datePattern = Pattern.compile("中[\\s\u3000]*華[\\s\u3000]*民[\\s\u3000]*國[\\s\u3000]*\\d+[\\s\u3000]*年[\\s\u3000]*\\d+[\\s\u3000]*月[\\s\u3000]*\\d+[\\s\u3000]*日");
+	    Matcher dateMatcher = datePattern.matcher(fullText);
+	    if (dateMatcher.find()) {
+	        // 截取匹配日期之前的文本
+	        return fullText.substring(0, dateMatcher.start()).trim();
+	    }
+	    return null; // 如果找不到匹配，返回 null
+	}
+
+	// 附錄後內容
+	private String mainContent2(String fullText) {
+		// 匹配「中華民國 年 月 日」
+		Pattern datePattern = Pattern.compile("中[\\s\u3000]*華[\\s\u3000]*民[\\s\u3000]*國[\\s\u3000]*\\d+[\\s\u3000]*年[\\s\u3000]*\\d+[\\s\u3000]*月[\\s\u3000]*\\d+[\\s\u3000]*日");
+		Matcher dateMatcher = datePattern.matcher(fullText);
+//		System.out.println(fullText);
+		if (dateMatcher.find()) {
+			// 截取匹配日期之後的文本
+			return fullText.substring(dateMatcher.end()).trim();
+		}
+		return null; // 如果找不到匹配，返回 null
+	}
 }
