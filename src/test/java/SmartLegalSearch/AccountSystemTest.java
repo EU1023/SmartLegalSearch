@@ -2,6 +2,8 @@ package SmartLegalSearch;
 
 import SmartLegalSearch.constants.ResMessage;
 import SmartLegalSearch.service.ifs.AccountSystemService;
+import SmartLegalSearch.vo.BasicRes;
+import SmartLegalSearch.vo.LoginReq;
 import SmartLegalSearch.vo.RegisterReq;
 import SmartLegalSearch.vo.RegisterRes;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ public class AccountSystemTest {
     @Autowired
     private AccountSystemService accountSystemService;
 
+    // 註冊測試
     @Test
     public void testRegister() {
         RegisterReq req = new RegisterReq("abc@gmail.com","abc123");
