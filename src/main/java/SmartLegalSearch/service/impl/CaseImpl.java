@@ -2,16 +2,14 @@ package SmartLegalSearch.service.impl;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import SmartLegalSearch.constants.ResMessage;
 import SmartLegalSearch.entity.LegalCase;
@@ -31,74 +29,22 @@ public class CaseImpl implements CaseService {
 	@Autowired
 	private DataSource dataSource;
 
+	@Cacheable(cacheNames = "case_search", //
+			key = "#p0.searchName + '-' + #p0.verdictStartDate.toString() "//
+					+ "+ '-' + #p0.verdictEndDate.toString() + '-' + #p0.verdictId "
+					+ "+ '-' + #p0.charge + '-' + #p0.caseType " //
+					+ "+ '-' + #p0.docType + '-' + #p0.courtList.toString() " //
+					+ "+ '-' + #p0.lawList.toString()", //
+			unless = "#result.code != 200")
 	@Override
 	public SearchRes searchCriminalCase(SearchReq req) {
-		// 參數驗證
-
-		// 模糊搜尋
-		String name = req.getSearchName();
-		if (!StringUtils.hasText(name)) {
-			name = "";
-		}
-
-		// 裁判字號
-		String id = req.getVerdictId();
-		if (!StringUtils.hasText(id)) {
-			id = "%";
-		}
-
-		// 開始時間
-		LocalDate startDate = req.getVerdictStartDate();
-		if (startDate == null) {
-			startDate = LocalDate.of(1950, 1, 1);
-		}
-
-		// 結束時間
-		LocalDate nedDate = req.getVerdictEndDate();
-		if (nedDate == null) {
-			nedDate = LocalDate.of(9999, 12, 31);
-		}
-
-		// 確認開始時間不能比結束時間晚
-		if (startDate.isAfter(nedDate)) {
-			return new SearchRes(ResMessage.DATE_ERROR.getCode(), //
-					ResMessage.DATE_ERROR.getMessage());
-		}
-
-		// 案由
-		String charge = req.getCharge();
-		if (!StringUtils.hasText(charge)) {
-			charge = "%";
-		}
-
-		// 案件類型
-		String caseType = req.getCaseType();
-		if (!StringUtils.hasText(caseType)) {
-			caseType = "%";
-		}
-
-		// 文件類型
-		String docType = req.getDocType();
-		if (!StringUtils.hasText(docType)) {
-			docType = "%";
-		}
-
-		// 法條
-		List<String> lawList = req.getLawList();
-		if (CollectionUtils.isEmpty(lawList)) {
-			lawList = new ArrayList<>();;
-		}
-
-		// 法院
-		List<String> courtList = req.getCourtList();
-		if (CollectionUtils.isEmpty(courtList)) {
-			courtList = new ArrayList<>();
-		}
-
+		// 為了cache，資料驗證改至 controller 執行
 		List<LegalCase> res = new ArrayList<>();
 		try (Connection connection = dataSource.getConnection()) {
-			res = caseDao.searchByConditions(connection, name, startDate, nedDate, //
-					id, charge, caseType, docType, courtList, lawList);
+			res = caseDao.searchByConditions(connection, req.getSearchName(), req.getVerdictStartDate(),
+					req.getVerdictEndDate(), //
+					req.getVerdictId(), req.getCharge(), req.getCaseType(), //
+					req.getDocType(), req.getCourtList(), req.getLawList());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
