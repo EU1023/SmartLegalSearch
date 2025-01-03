@@ -37,7 +37,7 @@ public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 
 		// 1. 撰寫 SQL like 語法(native query)
 		String sqlStr = "select group_id, id, court, verdict_date, url, charge, judge_name, " //
-				+ " defendant_name, content, law, case_type, doc_type " //
+				+ " defendant_name, content, content2, law, case_type, doc_type " //
 				+ " from legal_case " //
 				+ " where content like concat('%', ?, '%') " //
 				+ " and verdict_date between ? and ?" // date 在開始時間跟結束時間之間
@@ -114,9 +114,10 @@ public interface CaseDao extends JpaRepository<LegalCase, CaseId> {
 				legalcase.setJudgeName(resSet.getString(7));
 				legalcase.setDefendantName(resSet.getString(8));
 				legalcase.setContent(resSet.getString(9));
-				legalcase.setLaw(resSet.getString(10));
-				legalcase.setCaseType(resSet.getString(11));
-				legalcase.setDocType(resSet.getString(12));
+				legalcase.setContent2(resSet.getString(10));
+				legalcase.setLaw(resSet.getString(11));
+				legalcase.setCaseType(resSet.getString(12));
+				legalcase.setDocType(resSet.getString(13));
 				res.add(legalcase);
 			}
 		} catch (Exception e) {
